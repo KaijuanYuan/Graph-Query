@@ -2,12 +2,11 @@ export default {
     state: {
         count: 0,
         year: { attrName: 'Time', attrUnit: 'year', left: 0, right: 0, leftX: 0, rightX: 0, attrValue: [], options: [], }, //年份分布
-        //year: {},
         conference: {}, //会议分布
         type: {}, //类型分布
-        paper: {},
-        coNumber: {},
-        coWeight: {},
+        paper: { attrName: 'Publications', attrUnit: 'number', left: 0, right: 0, leftX: 0, rightX: 0, attrValue: [], options: [], },
+        coNumber: { attrName: 'Coauthors', attrUnit: 'number', left: 0, right: 0, leftX: 0, rightX: 0, attrValue: [], options: [], },
+        coWeight: { attrName: 'Cooperation Times', attrUnit: 'number', left: 0, right: 0, leftX: 0, rightX: 0, attrValue: [], options: [], },
         barNo: 8,
         leftRangeDelta: 0.8,
         barWidth: 11,
@@ -26,18 +25,6 @@ export default {
         },
         decrement(state) {
             state.count--
-        },
-        changeYear(state, type, value) {
-            state.year[type] = value
-        },
-        changePaper(state, type, value) {
-            state.paper[type] = value
-        },
-        changeNumber(state, type, value) {
-            state.coNumber[type] = value
-        },
-        changeWeight(state, type, value) {
-            state.coWeight[type] = value
         },
         attrYear(state, yearNo) {
             state.year['attrName'] = 'Time Published'

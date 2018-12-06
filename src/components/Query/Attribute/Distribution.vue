@@ -6,7 +6,7 @@
       <div class="desc">{{attr.attrUnit}}</div>
       <div class="filter">
         <div class="bar-wrapper">
-          <div class="bar-cont">
+          <div class="bar-cont" :id = "ind">
             <div class="bar" v-for="(opt) in attr.options"
               :key="opt.left"
               :style="{
@@ -24,13 +24,13 @@
               :style="{
                 left: prec(attr.leftX)
               }"
-              @mousedown="mouseDidPressOnRanger($event, attr, 'left')"></div>
+              @mousedown="mouseDidPressOnRanger($event, ind, 'left')"></div>
               
             <div class="range right"
               :style="{
                 left: prec(attr.rightX )
               }"
-              @mousedown="mouseDidPressOnRanger($event, attr, 'right')" ></div>
+              @mousedown="mouseDidPressOnRanger($event, ind, 'right')" ></div>
               
             <div class="range-axis left"
               :style="{
@@ -67,6 +67,8 @@ export default {
   data:()=>({
     attributes: null,
     ranger: null,
+    left: 0,
+    right: 0,
     
   }),
   computed:{
@@ -77,20 +79,13 @@ export default {
       return `${index}%`
     },
 
-    mouseDidPressOnRanger (event, attr, type) {
-      // if (attr.type !== 'CONTINUOUS') {
-      //   return
-      // }
-      // this.ranger = {
-      //   type,
-      //   cursorX: event.pageX,
-      //   target: attr,
-      //   width: $('.filter .bar-cont').width()
-      // }
+    mouseDidPressOnRanger (event, ind, type) {
+      const attr = this.attributes[ind]
       const width = $('.filter .bar-cont').width()
+      //const left = $('.filter .bar-cont').offset().left
+      const left = $('#' + ind).offset().left
       const moveFn = (e) => {
-        console.log('inital', event.pageX, 'e.pageX' ,e.pageX)
-        const delta = (e.pageX - event.pageX) / width * 100
+        const delta = (e.pageX - left) / width * 100
         const ratio = (attr.maxValue - attr.minValue)/(attr.options[attr.options.length-1].left + attr.options[0].width - attr.options[0].left)
         let newDown = delta * ratio 
         
@@ -100,37 +95,42 @@ export default {
           if(newDown < attr.right && newDown > attr.minValue)
           {
             attr.left = Math.floor(newDown)
-            attr.leftX = (e.pageX - event.pageX) / width * 100
+            attr.leftX = (e.pageX - left)/ width * 100
+            console.log('left: ' + attr.left)
           }
           else if(newDown >= attr.right)
           {
             attr.left = attr.right
             attr.leftX = attr.rightX
+            console.log('left: ' + attr.left)
           }
           else if(newDown <= attr.minValue)
           {
             attr.left = attr.minValue
             attr.leftX = attr.options[0].left
+            console.log('left: ' + attr.left)
           }
-          console.log(attr)
         }
         else if(type == 'right')
         {
-          newDown += attr.maxValue
-          if(newDown < attr.right && newDown > attr.minValue) 
+          newDown += attr.minValue
+          if(newDown > attr.left && newDown < attr.maxValue) 
           {
             attr.right = Math.floor(newDown)
-            attr.rightX = ( 1 + (e.pageX - event.pageX) / width ) * 100
+            attr.rightX = (e.pageX - left) / width * 100
+            console.log('right: ' + attr.right)
           }
           else if(newDown >= attr.maxValue)
           {
             attr.right = attr.maxValue
             attr.rightX = attr.options[attr.options.length-1].left + attr.options[0].width
+            console.log('right: ' + attr.right)
           }
           else if (newDown <= attr.left)
           {
             attr.right = attr.left
             attr.rightX = attr.leftX
+            console.log('right: ' + attr.right)
           }          
         }
       }
@@ -153,7 +153,6 @@ export default {
     const coNumber = this.$store.state.attribute.coNumber
     const coWeight = this.$store.state.attribute.coWeight
     
-
     this.attributes = [year, paper, coNumber, coWeight]
   }
 }

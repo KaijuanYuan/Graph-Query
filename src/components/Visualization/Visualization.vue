@@ -4,7 +4,7 @@
     <button @click="increment">+</button>
     <button @click="decrement">-</button>
     <button v-show = "true" @click="myfunc">-</button>
-    <p>{{test}} + {{nameZ}}</p>
+    <p>{{nameZ}}</p>
   </div>
 </template>
 
@@ -26,8 +26,10 @@ export default {
   name: 'Visualization',
  
   data:()=>({
-    test: 1,
+    test: null,
     nameZ: "LeiseHolz",
+
+    
   }),
   computed:{
     count(){
@@ -43,9 +45,9 @@ export default {
     },
     myfunc:function(){
       myFunction()
-      
     },
   },
+  
 }
 
 </script>
