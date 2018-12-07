@@ -1,5 +1,9 @@
 <template>
   <div class="distribution">
+    <div class="record">
+      <div class="apply" @click="addNewConstraints"> add </div>
+      <div class="apply" @click="renewConstraints"> renew </div>
+    </div>
     <div class="header" v-for="(attr, ind) in attributes" 
       :key ="attr.attrName">
       <div class="name">{{attr.attrName}}</div>
@@ -74,6 +78,33 @@ export default {
   methods:{
     prec(index) {
       return `${index}%`
+    },
+
+    addNewConstraints() {
+      this.$store.commit('invalidConstraints')
+      const inApply = true
+      const attributes = []
+      this.attributes.forEach(attr => {
+        const attrName = attr.attrName
+        const left = attr.left
+        const right = attr.right
+        const leftX = attr.leftX
+        const rightX = attr.rightX
+        attributes.push({attrName, left, right, leftX, rightX})
+      })
+      this.$store.commit('addConstraints', {inApply, attributes})
+    },
+
+    renewConstraints() {
+      this.attributes.forEach(attr => {
+        attr.left = attr.minValue
+        attr.right = attr.maxValue
+        attr.leftX = attr.options[0].left
+        attr.rightX = attr.options[attr.options.length-1].left + attr.options[0].width
+        attr.options.forEach(opt => {
+          opt.shadow = 100
+        })
+      })
     },
 
     shadowHeight(index, type) {
@@ -239,13 +270,47 @@ export default {
   border-width: 2px;
   border-color: $GRAY1;
   height: $QUERY_ATTRIBUTE_DISTRIBUTION_HEIGHT;
-  width: calc(100% - #{$QUERY_ATTRIBUTE_DISTRIBUTION_HEIGHT});
-  padding-left: $QUERY_ATTRIBUTE_DISTRIBUTION_HEIGHT;
+  //width: calc(100% - #{$QUERY_ATTRIBUTE_DISTRIBUTION_HEIGHT});
+  width: 100%;
+  //padding-left: $QUERY_ATTRIBUTE_DISTRIBUTION_HEIGHT;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   position: relative;
   overflow: hidden;
+
+  .record {
+    flex: 0 0 $FILTER_FORCED_WIDTH;
+    position: relative;
+    border-style: solid;///
+    border-width: 1px 1px 1px 0px;///
+    border-color: $GRAY1;///
+    width: $FILTER_FORCED_WIDTH;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    
+    .apply {
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      height: 24px;
+      font-size: 14px;
+      color: #777;
+      padding: 0 10px;
+      margin: 0 5px;
+      background-color: $GRAY0;
+      border: 1px solid $GRAY3;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 200ms, color 200ms;
+      
+      &:hover {
+          background-color: $GRAY1;
+        }
+      
+    }
+  }
 
   .header {
     flex: 0 0 $FILTER_FORCED_WIDTH;

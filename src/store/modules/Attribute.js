@@ -13,6 +13,7 @@ export default {
         midBarDelta: 1,
         magnification: 15, //缩小bar间的倍数差异
         constraints: [], //属性约束列表
+        constrInApply: null,
 
     },
     getters: {
@@ -26,6 +27,36 @@ export default {
         },
         decrement(state) {
             state.count--
+        },
+        addConstraints(state, constraint) {
+            state.constraints.push(constraint)
+            this.commit('applyConstraint', constraint.attributes)
+        },
+        invalidConstraints(state) {
+            state.constraints.forEach(constraint => {
+                constraint.inApply = false
+            })
+        },
+        activeConstraints(state, ind) {
+            state.constraints[ind].inApply = true
+            this.commit('applyConstraint', state.constraints[ind].attributes)
+        },
+        deleteConstraints(state, ind) {
+            state.constraints.splice(ind, 1)
+        },
+        applyConstraint(state, constraint) {
+            if (!state.constrInApply) {
+                state.constrInApply = []
+                constraint.forEach(attribute => {
+                    state.constrInApply.push(attribute)
+                })
+            } else {
+                state.constrInApply.splice(0, state.constrInApply.length)
+                constraint.forEach(attribute => {
+                    state.constrInApply.push(attribute)
+                })
+            }
+            console.log(state.constrInApply)
         },
         attrYear(state, yearNo) {
             state.year['attrName'] = 'Time Published'
@@ -402,6 +433,8 @@ constraints
             attrName: '',
          left: value,
          right: value,
+         leftX: value,
+         rightX: value,
         },
         {},
         ...
