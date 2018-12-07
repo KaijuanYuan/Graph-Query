@@ -102,6 +102,8 @@ export default {
             // })
             // console.log(allNo)
 
+            console.log(state.year.options[state.year.options.length - 1].rightRange)
+
         },
         attrPaper(state, paperNo) {
             state.paper['attrName'] = 'Publications'
@@ -165,7 +167,7 @@ export default {
                     item.height *= state.magnification
                 }
 
-                console.log(item.height)
+                //console.log(item.height)
             })
 
             state.paper['leftX'] = state.paper.options[0].left
@@ -181,6 +183,7 @@ export default {
 
             // })
             // console.log(allNo)
+            console.log(state.paper.options[state.paper.options.length - 1].rightRange)
         },
         attrNumber(state, coauthorNo) {
             state.coNumber['attrName'] = 'Coauthors'
@@ -244,7 +247,6 @@ export default {
                     item.height *= state.magnification / 1.5
                 }
 
-                console.log(item.height)
             })
 
             state.coNumber['leftX'] = state.coNumber.options[0].left
@@ -260,6 +262,7 @@ export default {
 
             // })
             // console.log(allNo)
+            console.log(state.coNumber.options[state.coNumber.options.length - 1].rightRange)
         },
         attrWeight(state, coauthorWei) {
             state.coWeight['attrName'] = 'Cooperation Times'
@@ -323,7 +326,6 @@ export default {
                     item.height *= state.magnification
                 }
 
-                console.log(item.height)
             })
 
             state.coWeight['leftX'] = state.coWeight.options[0].left
@@ -340,6 +342,7 @@ export default {
 
             // })
             // console.log(allNo)
+            console.log(state.coWeight.options[state.coWeight.options.length - 1].rightRange)
         },
 
     },

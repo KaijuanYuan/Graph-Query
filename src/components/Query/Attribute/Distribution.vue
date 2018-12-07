@@ -88,16 +88,27 @@ export default {
           else if(opt.leftRange < attr.left && opt.rightRange > attr.left)
           {
             const filt = attr.attrValue.filter(function(item) {
-              return item.value >=attr.left && item.value <opt.rightRange
+              const right = opt.rightRange <= attr.right ? opt.rightRange : attr.right
+              return item.value >=attr.left && item.value < right
             })
             const origin = attr.attrValue.filter(function(item) {
               return item.value >=opt.leftRange && item.value <opt.rightRange
             })
             opt.shadow = filt.length / origin.length *100
           }
-          else if(opt.leftRange >= attr.left)
+          else if(opt.leftRange >= attr.left &&opt.rightRange <= attr.right)
           {
             opt.shadow = 100
+          }
+          else if(opt.leftRange >= attr.left &&opt.rightRange > attr.right)
+          {
+            const filt = attr.attrValue.filter(function(item) {
+              return item.value >=opt.leftRange && item.value < attr.right
+            })
+            const origin = attr.attrValue.filter(function(item) {
+              return item.value >=opt.leftRange && item.value <opt.rightRange
+            })
+            opt.shadow = filt.length / origin.length *100
           }
         })
       }
@@ -111,16 +122,27 @@ export default {
           else if(opt.leftRange <= attr.right && opt.rightRange > attr.right)
           {
             const filt = attr.attrValue.filter(function(item) {
-              return item.value >=opt.leftRange && item.value <= attr.right
+              const left = opt.leftRange >= attr.left ? opt.leftRange : attr.left
+              return item.value >= left && item.value < attr.right              
             })
             const origin = attr.attrValue.filter(function(item) {
               return item.value >=opt.leftRange && item.value <opt.rightRange
             })
             opt.shadow = filt.length / origin.length *100
           }
-          else if(opt.rightRange <= attr.right)
+          else if(opt.rightRange <= attr.right && opt.leftRange >= attr.left)
           {
             opt.shadow = 100
+          }
+          else if(opt.rightRange <= attr.right && opt.leftRange < attr.left)
+          {
+            const filt = attr.attrValue.filter(function(item) {
+              return item.value >=attr.left && item.value < opt.rightRange
+            })
+            const origin = attr.attrValue.filter(function(item) {
+              return item.value >=opt.leftRange && item.value <opt.rightRange
+            })
+            opt.shadow = filt.length / origin.length *100
           }
         })
       }
