@@ -9,7 +9,7 @@ Vue.use(Vuex)
 import Attributes from './modules/Attribute'
 export default new Vuex.Store({
     state: {
-        authors: [],
+        authors: [], //全部数据，key:(author, title)
         relations: [],
         yearNo: [], //年份分布
         conferenceNo: [], //会议分布
@@ -183,3 +183,28 @@ export default new Vuex.Store({
         },
     },
 })
+
+/*Format  -----  authors
+authors is an array, in which each element is an author, aurhots records all the data which is organized as follows:
+authors[
+{
+    author: 作者名，
+    title: 论文题目，
+    index: 论文id，
+    conference: 发表会议,
+    year: 发表年份,
+    type: 论文类型，
+    DOI: DOI,
+    link: 链接，
+    autLength: 作者数量,
+    autRank: 作者排名，
+    autList: 作者列表，[aut1, aut2, aut3...]
+    paperNo: 作者发表论文总数，
+    paperList：发表论文列表，[paper1, paper2, paper3...]
+
+},
+{...},
+{...},
+...
+]
+*/

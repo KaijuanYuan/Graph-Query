@@ -1,17 +1,18 @@
 export default {
     state: {
         count: 0,
-        year: { attrName: 'Time', attrUnit: 'year', left: 0, right: 0, leftX: 0, rightX: 0, attrValue: [], options: [], }, //年份分布
+        year: { attrName: 'Time', attrUnit: 'year', left: 0, right: 0, leftX: 0, rightX: 0, shadow: 100, attrValue: [], options: [], }, //年份分布
         conference: {}, //会议分布
         type: {}, //类型分布
-        paper: { attrName: 'Publications', attrUnit: 'number', left: 0, right: 0, leftX: 0, rightX: 0, attrValue: [], options: [], },
-        coNumber: { attrName: 'Coauthors', attrUnit: 'number', left: 0, right: 0, leftX: 0, rightX: 0, attrValue: [], options: [], },
-        coWeight: { attrName: 'Cooperation Times', attrUnit: 'number', left: 0, right: 0, leftX: 0, rightX: 0, attrValue: [], options: [], },
+        paper: { attrName: 'Publications', attrUnit: 'number', left: 0, right: 0, leftX: 0, rightX: 0, shadow: 100, attrValue: [], options: [], },
+        coNumber: { attrName: 'Coauthors', attrUnit: 'number', left: 0, right: 0, leftX: 0, rightX: 0, shadow: 100, attrValue: [], options: [], },
+        coWeight: { attrName: 'Cooperation Times', attrUnit: 'number', left: 0, right: 0, leftX: 0, rightX: 0, shadow: 100, attrValue: [], options: [], },
         barNo: 8,
         leftRangeDelta: 0.8,
         barWidth: 11,
         midBarDelta: 1,
         magnification: 15, //缩小bar间的倍数差异
+        constraints: [], //属性约束列表
 
     },
     getters: {
@@ -79,8 +80,10 @@ export default {
                 if (height > heightMax) {
                     heightMax = height
                 }
-                //console.log(left + ' ' + width + ' ' + height + ' ' + leftRange + ' ' + rightRange)
-                state.year.options.push({ left, width, height, leftRange, rightRange })
+
+                const shadow = 100
+                    //console.log(left + ' ' + width + ' ' + height + ' ' + leftRange + ' ' + rightRange)
+                state.year.options.push({ left, width, height, leftRange, rightRange, shadow })
             }
             state.year.options.forEach(item => {
                 item.height = item.height / heightMax * 100
@@ -152,8 +155,9 @@ export default {
                 if (height > heightMax) {
                     heightMax = height
                 }
-                //console.log(left + ' ' + width + ' ' + height + ' ' + leftRange + ' ' + rightRange)
-                state.paper.options.push({ left, width, height, leftRange, rightRange })
+                const shadow = 100
+                    //console.log(left + ' ' + width + ' ' + height + ' ' + leftRange + ' ' + rightRange)
+                state.paper.options.push({ left, width, height, leftRange, rightRange, shadow })
             }
             state.paper.options.forEach((item, index) => {
                 item.height = item.height / heightMax * 100
@@ -230,14 +234,16 @@ export default {
                 if (height > heightMax) {
                     heightMax = height
                 }
-                //console.log(left + ' ' + width + ' ' + height + ' ' + leftRange + ' ' + rightRange)
-                state.coNumber.options.push({ left, width, height, leftRange, rightRange })
+                const shadow = 100
+                    //console.log(left + ' ' + width + ' ' + height + ' ' + leftRange + ' ' + rightRange)
+                state.coNumber.options.push({ left, width, height, leftRange, rightRange, shadow })
             }
             state.coNumber.options.forEach((item, index) => {
                 item.height = item.height / heightMax * 100
                 if (index > 0) {
                     item.height *= state.magnification / 1.5
                 }
+
                 console.log(item.height)
             })
 
@@ -307,14 +313,16 @@ export default {
                 if (height > heightMax) {
                     heightMax = height
                 }
-                //console.log(left + ' ' + width + ' ' + height + ' ' + leftRange + ' ' + rightRange)
-                state.coWeight.options.push({ left, width, height, leftRange, rightRange })
+                const shadow = 100
+                    //console.log(left + ' ' + width + ' ' + height + ' ' + leftRange + ' ' + rightRange)
+                state.coWeight.options.push({ left, width, height, leftRange, rightRange, shadow })
             }
             state.coWeight.options.forEach((item, index) => {
                 item.height = item.height / heightMax * 100
                 if (index > 0) {
                     item.height *= state.magnification
                 }
+
                 console.log(item.height)
             })
 
@@ -350,7 +358,7 @@ export default {
 }
 
 
-/*Format  -----  year, paper, coNumber, coWeight 
+/*Format  -----  year, paper, coNumber, coWeight, constraints
 
 year 
 {
@@ -371,10 +379,32 @@ year
          height:该bar高度,
          leftRange:该bar最左侧属性值（>=最小值）,
          rightRange:该bar最右侧属性值（<最大值）,
+         shadow:该bar阴影高度
         }, 
         {},
          ...],
 
 }
+
+
+constraints
+[
+{
+    //是否为当前应用的属性约束
+    inApply: true/false,
+
+    //每个属性约束的range
+    attributes: [
+        {
+            attrName: '',
+         left: value,
+         right: value,
+        },
+        {},
+        ...
+    ]
+},
+{},
+]
 
 */

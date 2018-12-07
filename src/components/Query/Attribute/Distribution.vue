@@ -16,7 +16,7 @@
               }">
               <div class="shadow"
                 :style="{
-                  //height: prec(opt.height)
+                  height: prec(opt.shadow)
                 }"></div>
             </div>
 
@@ -66,10 +66,7 @@ export default {
   name: 'Distribution',
   data:()=>({
     attributes: null,
-    ranger: null,
-    left: 0,
-    right: 0,
-    
+    rangerFlag: false,    
   }),
   computed:{
     
@@ -79,7 +76,58 @@ export default {
       return `${index}%`
     },
 
+    shadowHeight(index, type) {
+      const attr = this.attributes[index]
+      if(type == 'left')
+      {
+        attr.options.forEach(opt => {
+          if(opt.rightRange <= attr.left)
+          {
+            opt.shadow = 0
+          }
+          else if(opt.leftRange < attr.left && opt.rightRange > attr.left)
+          {
+            const filt = attr.attrValue.filter(function(item) {
+              return item.value >=attr.left && item.value <opt.rightRange
+            })
+            const origin = attr.attrValue.filter(function(item) {
+              return item.value >=opt.leftRange && item.value <opt.rightRange
+            })
+            opt.shadow = filt.length / origin.length *100
+          }
+          else if(opt.leftRange >= attr.left)
+          {
+            opt.shadow = 100
+          }
+        })
+      }
+      else if(type == 'right')
+      {
+        attr.options.forEach(opt => {
+          if(opt.leftRange > attr.right)
+          {
+            opt.shadow = 0
+          }
+          else if(opt.leftRange <= attr.right && opt.rightRange > attr.right)
+          {
+            const filt = attr.attrValue.filter(function(item) {
+              return item.value >=opt.leftRange && item.value <= attr.right
+            })
+            const origin = attr.attrValue.filter(function(item) {
+              return item.value >=opt.leftRange && item.value <opt.rightRange
+            })
+            opt.shadow = filt.length / origin.length *100
+          }
+          else if(opt.rightRange <= attr.right)
+          {
+            opt.shadow = 100
+          }
+        })
+      }
+    },
+
     mouseDidPressOnRanger (event, ind, type) {
+      //this.rangerFlag = true
       const attr = this.attributes[ind]
       const width = $('.filter .bar-cont').width()
       //const left = $('.filter .bar-cont').offset().left
@@ -96,19 +144,19 @@ export default {
           {
             attr.left = Math.floor(newDown)
             attr.leftX = (e.pageX - left)/ width * 100
-            console.log('left: ' + attr.left)
+            //console.log('left: ' + attr.left)
           }
           else if(newDown >= attr.right)
           {
             attr.left = attr.right
             attr.leftX = attr.rightX
-            console.log('left: ' + attr.left)
+            //console.log('left: ' + attr.left)
           }
           else if(newDown <= attr.minValue)
           {
             attr.left = attr.minValue
             attr.leftX = attr.options[0].left
-            console.log('left: ' + attr.left)
+            //console.log('left: ' + attr.left)
           }
         }
         else if(type == 'right')
@@ -118,24 +166,26 @@ export default {
           {
             attr.right = Math.floor(newDown)
             attr.rightX = (e.pageX - left) / width * 100
-            console.log('right: ' + attr.right)
+            //console.log('right: ' + attr.right)
           }
           else if(newDown >= attr.maxValue)
           {
             attr.right = attr.maxValue
             attr.rightX = attr.options[attr.options.length-1].left + attr.options[0].width
-            console.log('right: ' + attr.right)
+            //console.log('right: ' + attr.right)
           }
           else if (newDown <= attr.left)
           {
             attr.right = attr.left
             attr.rightX = attr.leftX
-            console.log('right: ' + attr.right)
+            //console.log('right: ' + attr.right)
           }          
         }
       }
 
       const commitFn = () => {
+        //this.rangerFlag = false
+        this.shadowHeight(ind, type)
         document.removeEventListener('mousemove', moveFn)
         document.removeEventListener('mouseup', commitFn)
 
@@ -158,7 +208,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss"> 
 @import '../../../styles/Constants.scss';
 
