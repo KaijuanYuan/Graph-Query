@@ -278,6 +278,7 @@ export default {
   flex-wrap: nowrap;
   position: relative;
   overflow: hidden;
+  overflow-x: auto;
 
   .record {
     flex: 0 0 $FILTER_FORCED_WIDTH;

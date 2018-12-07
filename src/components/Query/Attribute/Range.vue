@@ -19,11 +19,9 @@
                 left: prec(attr.leftX),
                 width: prec(attr.rightX - attr.leftX)
               }"></div>
-             
           </div>
-            
         </div>
-
+        
         <div class="label">
           <div class="text minimum">
             {{attr.left}}
@@ -75,7 +73,7 @@ export default {
 .range{
   flex: 0 0 calc(98% - #{$QUERY_ATTRIBUTE_DISTRIBUTION_HEIGHT});
   border-style: solid;
-  border-width: 1px;
+  border-width: 1px 3px 1px 1px;
   border-color: $GRAY1;
   width: 100%;
   height: calc(98% - #{$QUERY_ATTRIBUTE_DISTRIBUTION_HEIGHT});
@@ -132,7 +130,6 @@ export default {
       }
     }
 
-
     .header {
       flex: 0 0 $FILTER_FORCED_WIDTH;
       // border-style: solid;
@@ -142,7 +139,6 @@ export default {
       position: relative;
       overflow: hidden;
 
-        
       .bar-wrapper {
         height: 50%;
         margin: 0 10px 10px 10px;
@@ -155,8 +151,6 @@ export default {
           width: 100%;
           height: 100%;
           position: relative;
-
-
 
           .att-range {
             height: calc(100% - #{$ATTRIBUTE_CONSTRAINT_WIDTH}/4);
@@ -174,11 +168,8 @@ export default {
           }
         }
 
-        
-
       }
 
-      
       .label {
         display: flex;
         padding: 0 17px;
@@ -203,23 +194,7 @@ export default {
 
 }
 
-// .range::-webkit-scrollbar {
-//   width: 5px;
-//   //height: 100px;
-// }
-// .range::-webkit-scroolbar-thumb {
-//   border-radius: 1px;
-//   -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-//   background: rgba(0,0,0,0.2);
-
-// }
-// .range::-webkit-scroolbar-track {
-//   -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-//   border-radius: 0;
-//   background: rgba(0,0,0,0.1);
-// }
-
-//滚动条狂傲
+//滚动条宽高
 ::-webkit-scrollbar{
   width: 5px;
   height: 5px;
