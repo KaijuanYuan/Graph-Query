@@ -1,7 +1,8 @@
+import { filtData } from '../dataFilter'
 export default {
     state: {
         count: 0,
-        year: { attrName: 'Time', attrUnit: 'year', left: 0, right: 0, leftX: 0, rightX: 0, shadow: 100, attrValue: [], options: [], }, //年份分布
+        year: { attrName: 'Time Published', attrUnit: 'year', left: 0, right: 0, leftX: 0, rightX: 0, shadow: 100, attrValue: [], options: [], }, //年份分布
         conference: {}, //会议分布
         type: {}, //类型分布
         paper: { attrName: 'Publications', attrUnit: 'number', left: 0, right: 0, leftX: 0, rightX: 0, shadow: 100, attrValue: [], options: [], },
@@ -14,12 +15,16 @@ export default {
         magnification: 15, //缩小bar间的倍数差异
         constraints: [], //属性约束列表
         constrInApply: null,
+        autList: [], //全部作者数据
+        authorsFilted: [], //过滤后的作者列表        
+        authorsName: null, //过滤后作者姓名
+        authorsRelation: [], //过滤后作者关系
 
     },
     getters: {
         getYear(state) {
             return state.year
-        }
+        },
     },
     mutations: {
         increment(state) {
@@ -27,6 +32,53 @@ export default {
         },
         decrement(state) {
             state.count--
+        },
+        initAuthors(state, authors, relations) {
+
+            authors.forEach(auth => {
+                const author = auth.author
+                const title = auth.title
+                const index = auth.index
+                const conference = auth.conference
+                const year = auth.year
+                const type = auth.type
+                const DOI = auth.DOI
+                const link = auth.link
+                const autList = []
+                auth.autList.forEach(item => {
+                    autList.push(item)
+                })
+                const paperNo = auth.paperNo
+                const coauthors = []
+                auth.coauthors.forEach(item => {
+                    const name = item.name
+                    const weight = item.weight
+                    coauthors.push({ name, weight })
+                })
+
+                state.autList.push({ author, title, index, conference, year, type, DOI, link, autList, paperNo, coauthors })
+                state.authorsFilted.push({ author, title, index, conference, year, type, DOI, link, autList, paperNo, coauthors })
+            })
+
+            state.authorsName = new Set()
+            authors.forEach(item => {
+                state.authorsName.add(item.author)
+            })
+
+            state.authorsName.forEach(item => {
+                const ind = state.autList.findIndex(function(scholar) {
+                    return scholar.author == item
+                })
+                if (ind > -1) {
+                    const author = item.author
+                    const coauthors = []
+                    state.autList[ind].coauthors.forEach(coauthor => {
+                        coauthors.push(coauthor)
+                    })
+                    state.authorsRelation.push({ author, coauthors })
+                }
+            })
+
         },
         addConstraints(state, constraint) {
             state.constraints.push(constraint)
@@ -56,7 +108,34 @@ export default {
                     state.constrInApply.push(attribute)
                 })
             }
-            console.log(state.constrInApply)
+            const authors = filtData(state.constrInApply, state.autList)
+            state.authorsFilted = []
+            authors.forEach(item => {
+                state.authorsFilted.push(item)
+            })
+
+            //更新过滤后的作者名
+            state.authorsName.clear()
+            state.authorsFilted.forEach(item => {
+                state.authorsName.add(item.author)
+            })
+
+            //更新过滤后的关系
+            state.authorsRelation = []
+            state.authorsName.forEach(item => {
+                const ind = state.autList.findIndex(function(scholar) {
+                    return scholar.author == item
+                })
+                if (ind > -1) {
+                    const author = item.author
+                    const coauthors = []
+                    state.autList[ind].coauthors.forEach(coauthor => {
+                        coauthors.push(coauthor)
+                    })
+                    state.authorsRelation.push({ author, coauthors })
+                }
+            })
+
         },
         attrYear(state, yearNo) {
             state.year['attrName'] = 'Time Published'
@@ -384,10 +463,12 @@ export default {
             commit('attrPaper', rootState.paperNo)
             commit('attrNumber', rootState.coauthorNo)
             commit('attrWeight', rootState.coauthorWei)
+            commit('initAuthors', rootState.authors, rootState.relations)
             alert('Now is in attrYear~')
 
 
-        }
+        },
+
     },
 }
 

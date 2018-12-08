@@ -92,8 +92,8 @@ export default new Vuex.Store({
             const text = await resp.text()
                 //alert('Now is in actions.loadAuthors')
             const scholars = text.split('\n')
-                //author,title,index,conference,year,type,DOI,link,autLength,autRank,autList,paperNo,paperList
-                //每条记录具体项为：作者名,论文题目,(key) 论文id,发表会议,发表年份,论文类型,DOI,链接,作者数量,作者排名,作者列表,作者发表论文总数,发表论文列表
+                //author,title,index,conference,year,type,DOI,link,autLength,autRank,autList,paperNo,paperList, coauthors
+                //每条记录具体项为：作者名,论文题目,(key) 论文id,发表会议,发表年份,论文类型,DOI,链接,作者数量,作者排名,作者列表,作者发表论文总数,发表论文列表, 合作作者列表
             scholars.forEach(scholar => {
                 if (scholar.length > 0) {
                     const items = scholar.split(',')
