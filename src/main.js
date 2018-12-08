@@ -31,7 +31,7 @@ new Vue({
         await this.$store.dispatch('loadPapers')
         await this.$store.dispatch('loadScholars')
         await this.$store.dispatch('attrYear')
-        alert('Now is in beforeCreate')
+            //alert('Now is in beforeCreate')
     },
 
 })
