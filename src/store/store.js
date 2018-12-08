@@ -7,6 +7,7 @@ import scholarsCsvUrl from '../../data/output/authors.csv'
 Vue.use(Vuex)
 
 import Attributes from './modules/Attribute'
+import Structures from './modules/Structure';
 export default new Vuex.Store({
     state: {
         authors: [], //全部数据，key:(author, title)
@@ -20,6 +21,7 @@ export default new Vuex.Store({
     },
     modules: {
         attribute: Attributes,
+        structure: Structures,
     },
     getters: {},
     mutations: {
