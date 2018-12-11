@@ -220,8 +220,6 @@ var drawSketchView = $el => {
                     // enable zoom
                     vis.call(d3v2.behavior.zoom().on("zoom"), rescale);
 
-                    console.log("now we have:", nodes, links);
-
                     redraw();
                 }
             })
