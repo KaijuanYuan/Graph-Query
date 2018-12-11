@@ -1,78 +1,66 @@
 <template>
-  <div class="strucInput"></div>
+    <div class="strucInput"></div>
 </template>
 
 <script>
 import d3v2 from "./d3.v2";
 
-function drawSketchView(container) {}
-
-export default {
-  name: "StrucInput",
-  data: () => ({}),
-  computed: {},
-  methods: {},
-  created: function() {
-    console.log("created", d3v2, this);
-  },
-  mounted: function() {
-    let container = d3v2.select(this.$el);
-    var width = this.$el.clientWidth,
-      height = this.$el.clientHeight,
-      fill = d3v2.scale.category20();
-    console.log("struc input mounted,", width, height);
+var drawSketchView = $el => {
+    let container = d3v2.select($el);
+    var width = $el.clientWidth,
+        height = $el.clientHeight,
+        fill = d3v2.scale.category20();
     // mouse event vars
     var selected_node = null,
-      selected_link = null,
-      mousedown_link = null,
-      mousedown_node = null,
-      mouseup_node = null;
+        selected_link = null,
+        mousedown_link = null,
+        mousedown_node = null,
+        mouseup_node = null;
 
     // init svg
     var outer = container
-      .append("svg:svg")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("pointer-events", "all");
+        .append("svg:svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("pointer-events", "all");
 
     var vis = outer
-      .append("svg:g")
-      .call(d3v2.behavior.zoom().on("zoom", rescale))
-      .on("dblclick.zoom", null)
-      .append("svg:g")
-      .on("mousemove", mousemove)
-      .on("mousedown", mousedown)
-      .on("mouseup", mouseup);
+        .append("svg:g")
+        .call(d3v2.behavior.zoom().on("zoom", rescale))
+        .on("dblclick.zoom", null)
+        .append("svg:g")
+        .on("mousemove", mousemove)
+        .on("mousedown", mousedown)
+        .on("mouseup", mouseup);
 
-    vis
-      .append("svg:rect")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("fill", "white");
+    vis.append("svg:rect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill", "white");
 
     // init force layout
     var force = d3v2.layout
-      .force()
-      .size([width, height])
-      .nodes([{}]) // initialize with a single node
-      .linkDistance(50)
-      .charge(-200)
-      .on("tick", tick);
+        .force()
+        .size([width, height])
+        .nodes([{}]) // initialize with a single node
+        .linkDistance(50)
+        .charge(-200)
+        .on("tick", tick);
 
     // line displayed when dragging new nodes
     var drag_line = vis
-      .append("line")
-      .attr("class", "drag_line")
-      .attr("x1", 0)
-      .attr("y1", 0)
-      .attr("x2", 0)
-      .attr("y2", 0);
+        .append("line")
+        .attr("class", "drag_line")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", 0)
+        .attr("y2", 0);
 
     // get layout properties
     var nodes = force.nodes(),
-      links = force.links(),
-      node = vis.selectAll(".node"),
-      link = vis.selectAll(".link");
+        links = force.links(),
+        node = vis.selectAll(".node"),
+        link = vis.selectAll(".link");
 
     // add keyboard callback
     d3v2.select(window).on("keydown", keydown);
@@ -83,214 +71,229 @@ export default {
     // vis.node().focus();
 
     function mousedown() {
-      if (!mousedown_node && !mousedown_link) {
-        // allow panning if nothing is selected
-        vis.call(d3v2.behavior.zoom().on("zoom"), rescale);
-        return;
-      }
+        if (!mousedown_node && !mousedown_link) {
+            // allow panning if nothing is selected
+            vis.call(d3v2.behavior.zoom().on("zoom"), rescale);
+            return;
+        }
     }
 
     function mousemove() {
-      if (!mousedown_node) return;
+        if (!mousedown_node) return;
 
-      // update drag line
-      drag_line
-        .attr("x1", mousedown_node.x)
-        .attr("y1", mousedown_node.y)
-        .attr("x2", d3v2.svg.mouse(this)[0])
-        .attr("y2", d3v2.svg.mouse(this)[1]);
+        // update drag line
+        drag_line
+            .attr("x1", mousedown_node.x)
+            .attr("y1", mousedown_node.y)
+            .attr("x2", d3v2.svg.mouse(this)[0])
+            .attr("y2", d3v2.svg.mouse(this)[1]);
     }
 
     function mouseup() {
-      if (mousedown_node) {
-        // hide drag line
-        drag_line.attr("class", "drag_line_hidden");
+        if (mousedown_node) {
+            // hide drag line
+            drag_line.attr("class", "drag_line_hidden");
 
-        if (!mouseup_node) {
-          // add node
-          var point = d3v2.mouse(this),
-            node = { x: point[0], y: point[1] },
-            n = nodes.push(node);
+            if (!mouseup_node) {
+                // add node
+                var point = d3v2.mouse(this),
+                    node = { x: point[0], y: point[1] },
+                    n = nodes.push(node);
 
-          // select new node
-          selected_node = node;
-          selected_link = null;
+                // select new node
+                selected_node = node;
+                selected_link = null;
 
-          // add link to mousedown node
-          links.push({ source: mousedown_node, target: node });
+                // add link to mousedown node
+                links.push({ source: mousedown_node, target: node });
+            }
+
+            redraw();
         }
-
-        redraw();
-      }
-      // clear mouse event vars
-      resetMouseVars();
+        // clear mouse event vars
+        resetMouseVars();
     }
 
     function resetMouseVars() {
-      mousedown_node = null;
-      mouseup_node = null;
-      mousedown_link = null;
+        mousedown_node = null;
+        mouseup_node = null;
+        mousedown_link = null;
     }
 
     function tick() {
-      link
-        .attr("x1", function(d) {
-          return d.source.x;
+        link.attr("x1", function(d) {
+            return d.source.x;
         })
-        .attr("y1", function(d) {
-          return d.source.y;
-        })
-        .attr("x2", function(d) {
-          return d.target.x;
-        })
-        .attr("y2", function(d) {
-          return d.target.y;
-        });
+            .attr("y1", function(d) {
+                return d.source.y;
+            })
+            .attr("x2", function(d) {
+                return d.target.x;
+            })
+            .attr("y2", function(d) {
+                return d.target.y;
+            });
 
-      node
-        .attr("cx", function(d) {
-          return d.x;
-        })
-        .attr("cy", function(d) {
-          return d.y;
+        node.attr("cx", function(d) {
+            return d.x;
+        }).attr("cy", function(d) {
+            return d.y;
         });
     }
 
     // rescale g
     function rescale() {
-      trans = d3v2.event.translate;
-      scale = d3v2.event.scale;
+        trans = d3v2.event.translate;
+        scale = d3v2.event.scale;
 
-      vis.attr(
-        "transform",
-        "translate(" + trans + ")" + " scale(" + scale + ")"
-      );
+        vis.attr(
+            "transform",
+            "translate(" + trans + ")" + " scale(" + scale + ")"
+        );
     }
 
     // redraw force layout
     function redraw() {
-      link = link.data(links);
+        link = link.data(links);
 
-      link
-        .enter()
-        .insert("line", ".node")
-        .attr("class", "link")
-        .on("mousedown", function(d) {
-          mousedown_link = d;
-          if (mousedown_link == selected_link) selected_link = null;
-          else selected_link = mousedown_link;
-          selected_node = null;
-          redraw();
+        link.enter()
+            .insert("line", ".node")
+            .attr("class", "link")
+            .on("mousedown", function(d) {
+                mousedown_link = d;
+                if (mousedown_link == selected_link) selected_link = null;
+                else selected_link = mousedown_link;
+                selected_node = null;
+                redraw();
+            });
+
+        link.exit().remove();
+
+        link.classed("link_selected", function(d) {
+            return d === selected_link;
         });
 
-      link.exit().remove();
+        node = node.data(nodes);
 
-      link.classed("link_selected", function(d) {
-        return d === selected_link;
-      });
+        node.enter()
+            .insert("circle")
+            .attr("class", "node")
+            .attr("r", 5)
+            .on("mousedown", function(d) {
+                // disable zoom
+                vis.call(d3v2.behavior.zoom().on("zoom"), null);
 
-      node = node.data(nodes);
+                mousedown_node = d;
+                if (mousedown_node == selected_node) selected_node = null;
+                else selected_node = mousedown_node;
+                selected_link = null;
 
-      node
-        .enter()
-        .insert("circle")
-        .attr("class", "node")
-        .attr("r", 5)
-        .on("mousedown", function(d) {
-          // disable zoom
-          vis.call(d3v2.behavior.zoom().on("zoom"), null);
+                // reposition drag line
+                drag_line
+                    .attr("class", "link")
+                    .attr("x1", mousedown_node.x)
+                    .attr("y1", mousedown_node.y)
+                    .attr("x2", mousedown_node.x)
+                    .attr("y2", mousedown_node.y);
 
-          mousedown_node = d;
-          if (mousedown_node == selected_node) selected_node = null;
-          else selected_node = mousedown_node;
-          selected_link = null;
+                redraw();
+            })
+            .on("mousedrag", function(d) {
+                // redraw();
+            })
+            .on("mouseup", function(d) {
+                if (mousedown_node) {
+                    mouseup_node = d;
+                    if (mouseup_node == mousedown_node) {
+                        resetMouseVars();
+                        return;
+                    }
 
-          // reposition drag line
-          drag_line
-            .attr("class", "link")
-            .attr("x1", mousedown_node.x)
-            .attr("y1", mousedown_node.y)
-            .attr("x2", mousedown_node.x)
-            .attr("y2", mousedown_node.y);
+                    // add link
+                    var link = { source: mousedown_node, target: mouseup_node };
+                    links.push(link);
 
-          redraw();
-        })
-        .on("mousedrag", function(d) {
-          // redraw();
-        })
-        .on("mouseup", function(d) {
-          if (mousedown_node) {
-            mouseup_node = d;
-            if (mouseup_node == mousedown_node) {
-              resetMouseVars();
-              return;
-            }
+                    // select new link
+                    selected_link = link;
+                    selected_node = null;
 
-            // add link
-            var link = { source: mousedown_node, target: mouseup_node };
-            links.push(link);
+                    // enable zoom
+                    vis.call(d3v2.behavior.zoom().on("zoom"), rescale);
 
-            // select new link
-            selected_link = link;
-            selected_node = null;
+                    console.log("now we have:", nodes, links);
 
-            // enable zoom
-            vis.call(d3v2.behavior.zoom().on("zoom"), rescale);
-            redraw();
-          }
-        })
-        .transition()
-        .duration(750)
-        .ease("elastic")
-        .attr("r", 6.5);
+                    redraw();
+                }
+            })
+            .transition()
+            .duration(750)
+            .ease("elastic")
+            .attr("r", 6.5);
 
-      node
-        .exit()
-        .transition()
-        .attr("r", 0)
-        .remove();
+        node.exit()
+            .transition()
+            .attr("r", 0)
+            .remove();
 
-      node.classed("node_selected", function(d) {
-        return d === selected_node;
-      });
+        node.classed("node_selected", function(d) {
+            return d === selected_node;
+        });
 
-      if (d3v2.event) {
-        // prevent browser's default behavior
-        d3v2.event.preventDefault();
-      }
+        if (d3v2.event) {
+            // prevent browser's default behavior
+            d3v2.event.preventDefault();
+        }
 
-      force.start();
+        force.start();
     }
 
     function spliceLinksForNode(node) {
-      toSplice = links.filter(function(l) {
-        return l.source === node || l.target === node;
-      });
-      toSplice.map(function(l) {
-        links.splice(links.indexOf(l), 1);
-      });
+        toSplice = links.filter(function(l) {
+            return l.source === node || l.target === node;
+        });
+        toSplice.map(function(l) {
+            links.splice(links.indexOf(l), 1);
+        });
     }
 
     function keydown() {
-      if (!selected_node && !selected_link) return;
-      switch (d3v2.event.keyCode) {
-        case 8: // backspace
-        case 46: {
-          // delete
-          if (selected_node) {
-            nodes.splice(nodes.indexOf(selected_node), 1);
-            spliceLinksForNode(selected_node);
-          } else if (selected_link) {
-            links.splice(links.indexOf(selected_link), 1);
-          }
-          selected_link = null;
-          selected_node = null;
-          redraw();
-          break;
+        if (!selected_node && !selected_link) return;
+        switch (d3v2.event.keyCode) {
+            case 8: // backspace
+            case 46: {
+                // delete
+                if (selected_node) {
+                    nodes.splice(nodes.indexOf(selected_node), 1);
+                    spliceLinksForNode(selected_node);
+                } else if (selected_link) {
+                    links.splice(links.indexOf(selected_link), 1);
+                }
+                selected_link = null;
+                selected_node = null;
+                redraw();
+                break;
+            }
         }
-      }
     }
-  }
+
+    function getStructure() {
+        return {
+            ...nodes,
+            ...links
+        };
+    }
+    return getStructure;
+};
+
+export default {
+    name: "StrucInput",
+    data: () => ({}),
+    computed: {},
+    methods: {},
+    created: function() {},
+    mounted: function() {
+        var getStructure = drawSketchView(this.$el);
+    }
 };
 </script>
 
@@ -298,47 +301,47 @@ export default {
 @import "../../../styles/Constants.scss";
 
 .strucInput {
-  flex: 0 0 calc(100% - #{$PATTERN_FORCED_WIDTH});
-  border-style: solid;
-  border-width: 1px;
-  border-color: $GRAY1;
-  height: 100%;
-  width: calc(100% - #{$PATTERN_FORCED_WIDTH});
-  //width: $PATTERN_FORCED_WIDTH;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  overflow: hidden;
-  .node {
-    fill: #000;
-    cursor: crosshair;
-  }
+    flex: 0 0 calc(100% - #{$PATTERN_FORCED_WIDTH});
+    border-style: solid;
+    border-width: 1px;
+    border-color: $GRAY1;
+    height: 100%;
+    width: calc(100% - #{$PATTERN_FORCED_WIDTH});
+    //width: $PATTERN_FORCED_WIDTH;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    .node {
+        fill: #000;
+        cursor: crosshair;
+    }
 
-  .node_selected {
-    fill: #ff7f0e;
-    stroke: #ff7f0e;
-  }
+    .node_selected {
+        fill: #ff7f0e;
+        stroke: #ff7f0e;
+    }
 
-  .drag_line {
-    stroke: #999;
-    stroke-width: 5;
-    pointer-events: none;
-  }
+    .drag_line {
+        stroke: #999;
+        stroke-width: 5;
+        pointer-events: none;
+    }
 
-  .drag_line_hidden {
-    stroke: #999;
-    stroke-width: 0;
-    pointer-events: none;
-  }
+    .drag_line_hidden {
+        stroke: #999;
+        stroke-width: 0;
+        pointer-events: none;
+    }
 
-  .link {
-    stroke: #999;
-    stroke-width: 5;
-    cursor: crosshair;
-  }
+    .link {
+        stroke: #999;
+        stroke-width: 5;
+        cursor: crosshair;
+    }
 
-  .link_selected {
-    stroke: #ff7f0e;
-  }
+    .link_selected {
+        stroke: #ff7f0e;
+    }
 }
 </style>
