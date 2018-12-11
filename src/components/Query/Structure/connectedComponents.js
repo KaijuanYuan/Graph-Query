@@ -2,7 +2,7 @@ import Map2 from './Map2';
 var init = function(graph) {
     var connectedComponents = [];
     // var unexploredLinks = new Set(graph.links.map(link => link.source + '+' + link.target));
-    var unexploredNodes = new Set(graph.nodes);
+    var unexploredNodes = new Map(graph.nodes.map(node => [node.id, node]));
     var nodeAdjEdges = {};
     var adj = {};
     graph.links.forEach(link => {
@@ -21,16 +21,17 @@ var init = function(graph) {
     // var link = graph.links[0];
     
     while(unexploredNodes.size > 0) {
-        var connectedNodes = new Set(), connectedLinks = new Map2();
-        var node = Array.from(unexploredNodes)[0];
+        var connectedNodes = new Map(), connectedLinks = new Map2();
+        var node = Array.from(unexploredNodes)[0][1];
+        console.log('node', node);
         extract(adj, node, unexploredNodes, connectedNodes);
         connectedNodes.forEach(node => {
-            nodeAdjEdges[node].forEach((link, key) => {
+            nodeAdjEdges[node.id].forEach((link, key) => {
                 connectedLinks.set(key, link);
             });
         })
         connectedComponents.push({
-            nodes: Array.from(connectedNodes),
+            nodes: Array.from(connectedNodes).map(node => node[1]),
             links: connectedLinks.values()
         });
     }
@@ -38,11 +39,11 @@ var init = function(graph) {
 };
 
 var extract = function(adj, node, unexploredNodes, connectedNodes) {
-    connectedNodes.add(node);
-    unexploredNodes.delete(node);
-    adj[node].forEach(n => {
+    connectedNodes.set(node.id, node);
+    unexploredNodes.delete(node.id);
+    adj[node.id].forEach(n => {
         if(unexploredNodes.has(n)) {
-            extract(adj, n, unexploredNodes, connectedNodes);
+            extract(adj, unexploredNodes.get(n), unexploredNodes, connectedNodes);
         }
     })
 }
