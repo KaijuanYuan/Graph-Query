@@ -1,13 +1,13 @@
 <template>
     <div class="visualization">
-        <p>{{count}}</p>
+        <!-- <p>{{count}}</p> -->
         <GraphTable></GraphTable>
-        <div>
+        <!-- <div>
             <button @click="increment">+</button>
             <button @click="decrement">-</button>
             <button v-show="true" @click="myfunc">-</button>
-        </div>
-        <p>{{nameZ}}</p>
+        </div> -->
+        <!-- <p>{{nameZ}}</p> -->
     </div>
 </template>
 
