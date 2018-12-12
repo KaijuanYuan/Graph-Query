@@ -172,12 +172,16 @@ def sub_knn_graph_match_new(gl, search_nodes_arg, knn_nodes_graph, distant, vect
 		rz += 1
 	return r, match_label
 
+
 def init():
 	global gl
 	gl.vectors = np.load('./data/author_ma_vetor.npy')
 	gl.matrix = np.load('./data/author_ma.npy')
 	gl.authors = np.loadtxt("./data/authors.csv", dtype = np.str, delimiter = "\n")
-def back_test(search_nodes, k, cos_min, max_num, min_num, links):
+
+
+def back_test(search_nodes, k, cos_min, max_num, min_num, links, nameArr = [], rela = []):
+	name = set(nameArr)
 	time_start0 = time.clock()
 	global gl
 	gl.max_num = max_num
@@ -223,9 +227,10 @@ def back_test(search_nodes, k, cos_min, max_num, min_num, links):
 
 	gl.knn_nodes_set = set([])
 	for i in range(len(vectors_list)):
-		index = bisect_ch(distances[i], (max_e - min_e) * cos_min + min_e)
-		if index > k:
-			index = k
+		index = k
+		# index = bisect_ch(distances[i], (max_e - min_e) * cos_min + min_e)
+		# if index > k:
+		# 	index = k
 		gl.knn_nodes_set = gl.knn_nodes_set | set(knn_nodes[i][0:index])
 	print('knn', time.clock() - time_start_read)
 	# gl.knn_nodes_set &= gl.nodes_set
@@ -235,7 +240,51 @@ def back_test(search_nodes, k, cos_min, max_num, min_num, links):
 	gl.search_nodes_ma = ma
 	gl.search_l = len(search_nodes)
 	knn_nodes_graph = sub_knn_graph(gl.matrix, gl.knn_nodes_set, search_nodes, gl.max_num, gl.min_num)
-	return knn_nodes_graph
+
+	res_links = []
+	for i, v in knn_nodes_graph.items():
+		v_np = np.array(v)
+		v_ma = gl.matrix[v_np[:, None], v_np]
+		r, l = np.where(v_ma == 1)
+		res_links.append([])
+		lres = len(res_links) - 1
+		for j in range(len(r)):
+			x = r[j]
+			y = l[j]
+			res_links[lres].append([v[x], v[y]])
+
+	# print(res_links)
+	res = []
+	for i in range(len(knn_nodes_graph)):
+		nodes = knn_nodes_graph[str(i)]
+		links = res_links[i]
+		f = True
+		for node in nodes:
+			if gl.authors[node] not in name:
+				f = False
+				break
+		if f:
+			for link in links:
+				source = gl.authors[link[0]]
+				target = gl.authors[link[1]]
+				ff = False
+				for k in rela[source]:
+					if k['name'] == target:
+						ff = True
+						break
+				if not ff:
+					f = False
+					break
+		if f:
+			res.append(nodes)
+	resNodes = []
+	resNames = []
+	for nodes in res:
+		for node in nodes:
+			resNames.append(gl.authors[node])
+			resNodes.append(node)
+
+	return resNodes, resNames
 	gl.knn_graph_match, mathch_label = sub_knn_graph_match_new(gl, search_nodes, knn_nodes_graph, [], vectors_obj)
 	gl.sub_graph = {}
 	gl.knn_type_graphs = [[]] * len(gl.knn_graph_match.keys())

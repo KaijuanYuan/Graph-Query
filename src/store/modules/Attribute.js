@@ -16,10 +16,10 @@ export default {
         constraints: [], //属性约束列表
         constrInApply: null,
         autList: [], //全部作者数据
-        authorsFilted: [], //过滤后的作者列表        
+        authorsFilted: [], //过滤后的作者列表
         authorsName: null, //过滤后作者姓名
         authorsRelation: [], //过滤后作者关系
-
+        matchResults:[],//后端返回的结果
     },
     getters: {
         getYear(state) {
@@ -27,6 +27,9 @@ export default {
         },
     },
     mutations: {
+        getMatchResults(state, results){
+          state.matchResults = results
+        },
         increment(state) {
             state.count++
         },
@@ -70,7 +73,7 @@ export default {
                     return scholar.author == item
                 })
                 if (ind > -1) {
-                    const author = item.author
+                    const author = item.author || item
                     const coauthors = []
                     state.autList[ind].coauthors.forEach(coauthor => {
                         coauthors.push(coauthor)
@@ -127,7 +130,7 @@ export default {
                     return scholar.author == item
                 })
                 if (ind > -1) {
-                    const author = item.author
+                    const author = item.author || item
                     const coauthors = []
                     state.autList[ind].coauthors.forEach(coauthor => {
                         coauthors.push(coauthor)
@@ -475,7 +478,7 @@ export default {
 
 /*Format  -----  year, paper, coNumber, coWeight, constraints
 
-year 
+year
 {
     attrName: '',属性名
     attrUnit: '',属性单位
@@ -495,7 +498,7 @@ year
          leftRange:该bar最左侧属性值（>=最小值）,
          rightRange:该bar最右侧属性值（<最大值）,
          shadow:该bar阴影高度
-        }, 
+        },
         {},
          ...],
 
