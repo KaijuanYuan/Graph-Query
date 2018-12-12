@@ -40,9 +40,9 @@ function d3ForceCompute(graph) {
 
 export default {
     name: "GraphTable",
-    data:{
-      matchResults :[],
-      authors:[]
+    data: {
+        matchResults: [],
+        authors: []
     },
     computed: {},
     methods: {},
@@ -80,6 +80,43 @@ export default {
             authors: [
                 [3140, 3141, 3142, 3168, 3299, 3300, 3189, 3190, 3191, 3247, 3248, 3249, 3271, 3272, 3273, 3296, 3297, 3298, 3317, 3318, 3319, 3339, 3340, 3341, 3356, 3357, 3358, 3435, 3436, 3437, 3493, 3494, 3495, 3595, 3596, 3597, 3620, 3621, 3622, 3635, 3636, 3637, 3722, 3723, 3724, 3725, 3726, 3727, 3733, 3734, 3735],
                 ["Paul Rosenthal", "Tran Van Long", "Stephan Rosswog", "Michael Ogawa", "Chad Jones", "Anna Tikhonova", "Edward Clarkson", "Krishna Desai", "James D. Foley", "Suvi Tarkkanen", "Kaisa Miettinen", "Jussi Hakanen", "Scott Butner", "Michelle L. Gregory", "Julia Walker", "Thorsten Liebig", "Olaf Noppens", "Friedrich W. von Henke", "David Allen", "Tsai-Ching Lu", "Dave Huber", "Brandon Wright", "Matthew Steckman", "Scott Stevson", "Yong Wan", "Hideo Otsuna", "Chi-Bin Chien", "Younis Hijazi", "Rolf Westerteiger", "Mathias Schott", "Minoo Erfani Joorabchi", "Ji-Dong Yim", "Mona Erfani Joorabchi", "Olga A. Karpenko", "Wilmot Li", "Niloy J. Mitra", "Seon Joo Kim", "Shaojie Zhuo", "Fanbo Deng", "Wei Zeng", "Joseph Marino", "Krishna Chaitanya Gurijala", "Jagoda Walny", "Gina Venolia", "Philip Fawcett", "Mark-Anthony Bray", "Anne E. Carpenter", "Roy A. Ruddle", "Hossam Sharara", "Awalin Sopan", "Galileo Namata"]
+            ]
+        }, {
+            pattern: {
+                nodes: [{
+                    id: 0
+                }, {
+                    id: 1
+                }, {
+                    id: 2
+                }, {
+                    id: 3
+                }],
+                links: [{
+                        source: 0,
+                        target: 1
+                    },
+                    {
+                        source: 0,
+                        target: 2
+                    }, {
+                        source: 0,
+                        target: 3
+                    }, {
+                        source: 1,
+                        target: 2
+                    }, {
+                        source: 2,
+                        target: 3
+                    }, {
+                        source: 1,
+                        target: 3
+                    }
+                ]
+            },
+            authors: [
+                [2090, 2091, 2092, 2093, 59, 61, 62, 60, 91, 92, 93, 94, 95, 96, 97, 98, 4223, 4224, 4225, 4226, 3213, 3214, 3215, 3216, 146, 147, 148, 149, 1197, 1198, 1199, 1200, 3258, 3259, 3315, 3316, 1223, 1224, 1225, 1226, 3280, 3281, 3282, 3283, 3301, 3302, 3303, 3304, 250, 251, 252, 253, 1282, 1283, 1284, 1285, 280, 281, 282, 283, 288, 289, 290, 291, 1341, 1342, 1343, 1344, 4422, 4423, 4424, 4421, 390, 391, 784, 785, 1430, 1431, 1432, 1433, 3528, 3529, 3530, 4068, 3565, 3566, 3567, 3568, 3571, 3572, 3573, 3574, 3652, 3653, 3654, 3655, 596, 597, 598, 599, 603, 604, 605, 606, 2660, 2661, 2662, 2663, 632, 633, 634, 635, 636, 637, 638, 639, 3774, 3775, 3776, 3777, 2756, 2757, 2758, 2759, 713, 714, 715, 716, 4863, 4864, 4865, 4866, 2835, 2834, 2833, 2832, 1838, 1839, 1840, 1841, 1887, 1888, 1889, 1890, 1907, 1908, 1909, 1910, 976, 977, 978, 979, 3034, 3035, 3036, 3037],
+                ["Tzu-Wei Hsu", "Lee Inman", "Dave McColgin", "Kevin Stamper", "Chieh-Cheng Yen", "Jill Kempf", "Robert E. Marshall", "Keith W. Bedford", "Donald L. Brittain", "Josh Aller", "Michael Wilson", "Sue-Ling C. Wang", "Elizabeth M. Wenzel", "Scott S. Fisher", "Philip K. Stone", "Scott H. Foster", "Raja R. Sambasivan", "Ilari Shafer", "Michelle L. Mazurek", "Gregory R. Ganger", "Michel Crampes", "Jeremy de Oliveira-Kumar", "Sylvie Ranwez", "Jean Villerd", "David Watson", "Jakub Wejchert", "David W. Williams", "Bri M. Collins", "Paul Chapman", "Peter Stevens", "Derek Wills", "Graham R. Brookes", "Soujanya Vadapalli", "Kamalakar Karlapalem", "Shraddha Agrawal", "Kollukuduru Sravanthi", "Kerry Rodden", "Wojciech Basalaj", "David Sinclair", "Kenneth R. Wood", "Courtney C. Dornburg", "Laura E. Matzen", "Travis L. Bauer", "Laura A. McNamara", "Hao Zhou", "Anna A. Shaverdian", "H. V. Jagadish", "George Michailidis", "J. Burnetti", "R. Manley", "W. Mitchell", "D. Varnadore", "Sunil Hadap", "Endre Bangerter", "Pascal Volino", "Nadia Magnenat-Thalmann", "M. J. Geller", "E. E. Flaco", "D. G. Fabricant", "B. Estus", "Stuart A. Tobet", "Joan C. King", "Steven L. Wertheim", "Frank H. Duffy", "Ronald Azuma", "Howard Neely", "Michael J. Daily", "Mario Correa", "Minxin Cheng", "Xu Wang", "Ye Duan", "Tao Ju", "Allen Van Gelder", "Jane Wilhelms", "Paul Tarantino", "Jonathan Gibbs", "Dale A. Lawrence", "Christopher D. Lee", "Lucy Y. Pao", "Roman Y. Novoselov", "Shantanu H. Joshi", "Ian Bowman", "John D. Van Horn", "Vaughan Greer", "Eric E. Monson", "Guangliang Chen", "Rachel Brady", "Mauro Maggioni", "Marielle Mokhtari", "Eric Boivin", "Denis Laurendeau", "Maxime Girardin", "Nan Zhang", "Xiangmin Zhou", "Yunhe Shen", "Robert M. Sweet", "John S. Rowlan", "G. Edward Lent", "Nihar Gokhale", "Shannon Bradshaw", "Robert Spence", "Lisa Tweedie", "Huw Dawkes", "Hua Su", "Marta Kersten", "James Stewart", "Nikolaus F. Troje", "Randy E. Ellis", "Vinod Anupam", "Shaul Dar", "Ted Leibfried", "Eric Petajan", "Robert J. Hendley", "Nick S. Drew", "Andrew Wood", "Russell Beale", "Weijia Xu", "Maria Esteva", "Suyog Dott Jain", "Varun Jain", "Yuri A. Ivanov", "Christopher Richard Wren", "Alexander Sorokin", "Ishwinder Kaur", "Daryl H. Hepting", "Gianne Derks", "Kossi D. Edoh", "Robert D. Russell", "Jessica Peter", "Steve James Szigeti", "Ana Jofre", "Sara Diamond", "James Wilson", "Sarah Gigitashvilli", "Sang-joon Lee", "Jae Choi", "R. Mark Adams", "Blaze Stancampiano", "Michael McKenna", "David Small", "Kenneth L. Summers", "Timothy E. Goldsmith", "Steve Kubica", "Thomas P. Caudell", "Daniel C. Glaser", "Roger Tan", "John F. Canny", "Ellen Yi-Luen Do", "Martin L. Brady", "Kenneth K. Jung", "H. T. Nguyen", "Thinh P. Q. Nguyen", "Jaime Montemayor", "Christopher P. Diehl", "Michael Pekala", "David Patrone"]
             ]
         }];
 
@@ -179,7 +216,7 @@ export default {
                     statis[attrName + 'Count']++;
                 });
 
-                for (var i = 0; i < this[attrName].options.length; i++) {
+                for (var i = 1; i < this[attrName].options.length; i++) {
                     this.attrMap[attrName](author).forEach(value => {
                         if (value >= this[attrName].options[i].leftRange) {
                             if ((i == this[attrName].options.length - 1 && value == this[attrName].options[i].rightRange) ||
@@ -216,15 +253,17 @@ export default {
         this.structures.forEach((d, i) => {
             d.authors[1].forEach(name => {
                 var author = authorMap.get(name);
-                var rank = d3.mean(this.attrNames.map((attrName, i) => {
-                    return ranks[i][d3.mean(this.attrMap[attrName](author))]
-                }));
-                var dataRow = dataTable.filter(row => row.conference == author.conference && row.type == author.type)[0];
-                console.log(author, rank, dataRow);
-                if (dataRow) {
-                    dataRow['pattern' + i][Math.floor(rank * 5)]++;
-                } else {
-                    console.error('jackie error!');
+                if (author == undefined) {} else {
+                    var rank = d3.mean(this.attrNames.map((attrName, i) => {
+                        return ranks[i][d3.mean(this.attrMap[attrName](author))]
+                    }));
+                    var dataRow = dataTable.filter(row => row.conference == author.conference && row.type == author.type)[0];
+                    console.log(author, rank, dataRow);
+                    if (dataRow) {
+                        dataRow['pattern' + i][Math.floor(rank * 5)]++;
+                    } else {
+                        console.warn('no datarow');
+                    }
                 }
             });
         });
@@ -274,16 +313,17 @@ export default {
                 .attr('style', d => `height: ${rowHeight}px`)
                 .each(function (rowData) {
                     var row = d3.select(this);
+                    var width = this.clientWidth;
                     var columns = row.selectAll('.table-column').data(columnTitles);
-                    columns.enter().append('div').attr('class', 'table-column');
+                    columns.enter().append('div')
+                        .attr('class', 'table-column')
+                        .attr('style', `line-height: ${ rowHeight }px; height: 100%; width: ${width / columnTitles.length}px`);
                     columns.exit().remove();
 
                     row.selectAll('.table-column')
                         .each(function (dd) {
                             if (dd.content == 'Conference' || dd.content == 'Type') {
                                 d3.select(this).text(rowData[dd.attrName]);
-                                d3.select(this)
-                                    .attr('style', `line-height: ${ rowHeight }px`);
                                 if (dd.content == 'Conference') {
                                     d3.select(this).classed('conference', true);
                                 }
@@ -524,7 +564,7 @@ div#graphtable {
                 // background: gray;
                 // border: 1px solid black;
                 border-bottom: 1px solid #eaecee;
-                display: flex;
+                display: inline-block;
                 flex-direction: column;
             }
 
