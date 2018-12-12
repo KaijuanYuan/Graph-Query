@@ -82,7 +82,7 @@ def sub_knn_graph(matrix, knn_nodes_list, search_nodes, max_num, min_num, f = Tr
 	if f:
 		for i, v in r:
 			lv = len(v)
-			if len(v) >= max_num:
+			if len(v) > max_num:
 				continue
 			if len(v) < min_num:
 				break
@@ -176,6 +176,7 @@ def init():
 	global gl
 	gl.vectors = np.load('./data/author_ma_vetor.npy')
 	gl.matrix = np.load('./data/author_ma.npy')
+	gl.authors = np.loadtxt("./data/authors.csv", dtype = np.str, delimiter = "\n")
 def back_test(search_nodes, k, cos_min, max_num, min_num, links):
 	time_start0 = time.clock()
 	global gl
@@ -234,6 +235,7 @@ def back_test(search_nodes, k, cos_min, max_num, min_num, links):
 	gl.search_nodes_ma = ma
 	gl.search_l = len(search_nodes)
 	knn_nodes_graph = sub_knn_graph(gl.matrix, gl.knn_nodes_set, search_nodes, gl.max_num, gl.min_num)
+	return knn_nodes_graph
 	gl.knn_graph_match, mathch_label = sub_knn_graph_match_new(gl, search_nodes, knn_nodes_graph, [], vectors_obj)
 	gl.sub_graph = {}
 	gl.knn_type_graphs = [[]] * len(gl.knn_graph_match.keys())

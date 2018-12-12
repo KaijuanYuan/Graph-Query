@@ -175,6 +175,8 @@ export default new Vuex.Store({
             const text = await resp.text()
             const scholars = text.split('\n')
             scholars.forEach((scholar, index) => {
+                if (scholar[scholar.length-1]==='\r')
+                    scholar=scholar.slice(0,-1)
                 if (scholar.length > 0 && index > 0) {
                     context.commit('addPaperNo', scholar)
                     context.commit('addCoNo', scholar)

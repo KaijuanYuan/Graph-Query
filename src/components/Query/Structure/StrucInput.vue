@@ -1,5 +1,7 @@
 <template>
-    <div class="strucInput"></div>
+    <div class="strucInput">
+      <button  v-on:click="sendStruct" >Search</button>
+    </div>
 </template>
 
 <script>
@@ -19,7 +21,7 @@ var drawSketchView = $el => {
 
     // init svg
     var outer = container
-        .append("svg:svg")
+        .insert("svg:svg")
         .attr("width", width)
         .attr("height", height)
         .attr("pointer-events", "all");
@@ -275,22 +277,41 @@ var drawSketchView = $el => {
     }
 
     function getStructure() {
+      var nodesArr = [], linksArr =[]
+      for (let i=0;i<nodes.length;i++){
+        nodesArr.push(i)
+      }
+      var linksArr = links.map(d=>[d.source.index,d.target.index])
         return {
-            ...nodes,
-            ...links
+          nodesArr,
+          linksArr
         };
     }
     return getStructure;
 };
+import axios from 'axios'
 
 export default {
     name: "StrucInput",
-    data: () => ({}),
+    data: {
+      getStructure : null
+    },
     computed: {},
-    methods: {},
+    methods: {
+      sendStruct: function(){
+        var res = this.getStructure()
+        var nodes = res.nodesArr
+        var links = res.linksArr
+        axios.post('http://127.0.0.1:5000/knnQuery', { search_nodes:nodes, search_links:links })
+          .then((d) =>{
+            console.log(d.data)
+          })
+      }
+
+    },
     created: function() {},
     mounted: function() {
-        var getStructure = drawSketchView(this.$el);
+        this.getStructure = drawSketchView(this.$el);
     }
 };
 </script>
