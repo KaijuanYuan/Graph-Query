@@ -1,15 +1,11 @@
 # coding=utf-8
 from sklearn.neighbors import NearestNeighbors
-import networkx as nx
 import os
 import numpy as np
 import copy
 import time
-# from pymongo import MongoClient
 import networkx as nx
-import random
-import json
-from scipy.sparse import csr_matrix, csgraph
+from scipy.sparse import csgraph
 from gk_weisfeiler_lehman import compare
 
 from sklearn.cluster import DBSCAN

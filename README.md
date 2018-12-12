@@ -8,7 +8,13 @@
 # install dependencies
 npm install
 
-# serve with hot reload at localhost:8080
+# backend
+# the version of python is 3.6.4
+cd structSearch
+cd src 
+python app.py 
+
+# serve with hot reload at localhost:8888
 npm run dev
 
 # build for production with minification
