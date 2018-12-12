@@ -40,9 +40,13 @@ function d3ForceCompute(graph) {
 
 export default {
     name: "GraphTable",
-    data: () => ({}),
+    data:{
+      matchResults :[],
+      authors:[]
+    },
     computed: {},
     methods: {},
+
     created: function () {
         this.attrNames = ["year", "paper", "coNumber", "coWeight"];
         this.attrMap = {
@@ -51,7 +55,6 @@ export default {
             coNumber: author => [author.coauthors.length],
             coWeight: author => author.coauthors.map(ca => +ca.weight)
         };
-
         this.authors = this.$store.state.attribute.authorsFilted;
 
         this.structures = [{

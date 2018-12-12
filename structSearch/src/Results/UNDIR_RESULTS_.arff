@@ -1,7 +1,7 @@
 % Per node motif count results
 %
 % Tested Graph: ./data/graphlets_test_csv.npz
-% Run Date/Time: 12/12/2018
+% Run Date/Time: 12/13/2018
 %
 
 @RELATION motif_count

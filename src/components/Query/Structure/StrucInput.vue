@@ -275,7 +275,6 @@ var drawSketchView = $el => {
             }
         }
     }
-
     function getStructure() {
       var nodesArr = [], linksArr =[]
       for (let i=0;i<nodes.length;i++){
@@ -308,7 +307,7 @@ export default {
         axios.post('http://10.76.0.170:5000/knnQuery', { search_nodes:nodes, search_links:links,name:name, rela:rela})
           .then((d) =>{
             console.log(d.data)
-            this.$store.commit("getMatchResults", d.data);
+            this.$store.dispatch('getMatchResults',d.data)
           })
       }
 
