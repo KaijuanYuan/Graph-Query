@@ -19,7 +19,7 @@ export default {
         authorsFilted: [], //过滤后的作者列表
         authorsName: null, //过滤后作者姓名
         authorsRelation: [], //过滤后作者关系
-
+        matchResults:[],//后端返回的结果
     },
     getters: {
         getYear(state) {
@@ -27,6 +27,9 @@ export default {
         },
     },
     mutations: {
+        getMatchResults(state, results){
+          state.matchResults = results
+        },
         increment(state) {
             state.count++
         },

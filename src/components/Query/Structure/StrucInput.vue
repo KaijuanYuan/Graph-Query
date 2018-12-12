@@ -308,7 +308,7 @@ export default {
         axios.post('http://127.0.0.1:5000/knnQuery', { search_nodes:nodes, search_links:links,name:name, rela:rela})
           .then((d) =>{
             console.log(d.data)
-
+            this.$store.commit("getMatchResults", d.data);
           })
       }
 
