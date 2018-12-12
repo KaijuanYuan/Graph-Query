@@ -99,11 +99,19 @@ export default {
                 .attr('stroke-width', 1);
         }
 
-        var getFreBarHeight = () => 10;
+        var getFreBarHeight = () => 5;
         var maxFre = frePatterns.reduce((max, v) => Math.max(max, v.freq), 0);
         var getFreBarWidth = (fre) => {
-            return fre / maxFre * (uw * 0.9);
+            return fre / maxFre * (uw * 0.8);
         }
+
+        svg.append('clipPath')
+            .attr('id', 'cell-clip')
+            .append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', uw)
+            .attr('height', uh);
 
         frePatterns.forEach((frePattern, i) => {
             var g = svg
@@ -111,7 +119,8 @@ export default {
                 .attr(
                     "transform",
                     `translate(${(i % x) * uw}, ${Math.floor(i / x) * uh})`
-                );
+                )
+                .attr('clip-path', 'url(#cell-clip)');
 
             // g.append('rect')
             // 	.attr('width', uw)
@@ -185,6 +194,7 @@ export default {
                     .attr('y2', uh - getFreBarHeight() / 2)
                     .attr('stroke-width', getFreBarHeight())
                     .attr('stroke', '#FFB300')
+                    .attr('stroke-linecap', 'round');
             });
         });
     }
