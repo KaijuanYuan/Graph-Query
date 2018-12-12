@@ -1,5 +1,5 @@
 # coding=utf-8
-from flask import Flask, jsonify, request, json
+from flask import Flask, request, json
 from flask_cors import CORS
 from knn import back_test, init
 

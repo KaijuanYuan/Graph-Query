@@ -9,10 +9,10 @@
 npm install
 
 # backend
+# the version of python is 3.6.4
 cd structSearch
 cd src 
 python app.py 
-//the version of python is 3.6.4
 
 # serve with hot reload at localhost:8888
 npm run dev
