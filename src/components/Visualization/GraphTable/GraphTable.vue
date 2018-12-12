@@ -10,6 +10,34 @@
 
 <script>
 import * as d3 from "d3";
+
+function d3ForceCompute(graph) {
+    return function (callback) {
+        var simulation = d3
+            .forceSimulation()
+            .force(
+                "link",
+                d3.forceLink().id(function (d) {
+                    return d.id;
+                })
+            )
+            .force("charge", d3.forceManyBody())
+            .force("center", d3.forceCenter(0.5, 0.5))
+            .alphaMin(0.1);
+
+        simulation
+            .nodes(graph.nodes)
+            .on("tick", ticked)
+            .on("end", () => {
+                callback(graph);
+            });
+
+        simulation.force("link").links(graph.links);
+
+        function ticked() {}
+    };
+}
+
 export default {
     name: "GraphTable",
     data: () => ({}),
@@ -18,13 +46,39 @@ export default {
     created: function () {
         this.attrNames = ["year", "paper", "coNumber", "coWeight"];
         this.attrMap = {
-            year: author => [author.year],
-            paper: author => [author.paperNo],
+            year: author => [+author.year],
+            paper: author => [+author.paperNo],
             coNumber: author => [author.coauthors.length],
-            coWeight: author => author.coauthors.map(ca => ca.weight)
+            coWeight: author => author.coauthors.map(ca => +ca.weight)
         };
 
         this.authors = this.$store.state.attribute.authorsFilted;
+
+        this.structures = [{
+            pattern: {
+                nodes: [{
+                    id: 0
+                }, {
+                    id: 1
+                }, {
+                    id: 2
+                }],
+                links: [{
+                    source: 0,
+                    target: 1
+                }, {
+                    source: 1,
+                    target: 2
+                }, {
+                    source: 2,
+                    target: 0
+                }]
+            },
+            authors: [
+                [3140, 3141, 3142, 3168, 3299, 3300, 3189, 3190, 3191, 3247, 3248, 3249, 3271, 3272, 3273, 3296, 3297, 3298, 3317, 3318, 3319, 3339, 3340, 3341, 3356, 3357, 3358, 3435, 3436, 3437, 3493, 3494, 3495, 3595, 3596, 3597, 3620, 3621, 3622, 3635, 3636, 3637, 3722, 3723, 3724, 3725, 3726, 3727, 3733, 3734, 3735],
+                ["Paul Rosenthal", "Tran Van Long", "Stephan Rosswog", "Michael Ogawa", "Chad Jones", "Anna Tikhonova", "Edward Clarkson", "Krishna Desai", "James D. Foley", "Suvi Tarkkanen", "Kaisa Miettinen", "Jussi Hakanen", "Scott Butner", "Michelle L. Gregory", "Julia Walker", "Thorsten Liebig", "Olaf Noppens", "Friedrich W. von Henke", "David Allen", "Tsai-Ching Lu", "Dave Huber", "Brandon Wright", "Matthew Steckman", "Scott Stevson", "Yong Wan", "Hideo Otsuna", "Chi-Bin Chien", "Younis Hijazi", "Rolf Westerteiger", "Mathias Schott", "Minoo Erfani Joorabchi", "Ji-Dong Yim", "Mona Erfani Joorabchi", "Olga A. Karpenko", "Wilmot Li", "Niloy J. Mitra", "Seon Joo Kim", "Shaojie Zhuo", "Fanbo Deng", "Wei Zeng", "Joseph Marino", "Krishna Chaitanya Gurijala", "Jagoda Walny", "Gina Venolia", "Philip Fawcett", "Mark-Anthony Bray", "Anne E. Carpenter", "Roy A. Ruddle", "Hossam Sharara", "Awalin Sopan", "Galileo Namata"]
+            ]
+        }];
 
         console.log('matchResults', this.$store.state.matchResults);
 
@@ -76,9 +130,30 @@ export default {
             }
         ];
 
+        this.structures.forEach((d, i) => {
+            columnTitles.push({
+                content: d.pattern,
+                type: 'pattern',
+                attrName: "pattern" + i
+            });
+        })
+
         var statistic = {};
 
+        var ranks = this.attrNames.map(attrName => {
+            var rank = {};
+            var attrs = Array.from(new Set(this.authors.map(author => d3.mean(this.attrMap[attrName](author)))));
+            attrs.sort((a, b) => b - a);
+            attrs.forEach((d, i) => rank[d] = i / attrs.length);
+            return rank;
+        });
+
+        console.log(ranks);
+
+        var authorMap = new Map();
+
         this.authors.forEach(author => {
+            authorMap.set(author.author, author);
             var conference = author.conference;
             var type = author.type;
             statistic[conference] = statistic[conference] ?
@@ -99,7 +174,7 @@ export default {
                 this.attrMap[attrName](author).forEach(value => {
                     statis[attrName + 'Sum'] += +value;
                     statis[attrName + 'Count']++;
-                })
+                });
 
                 for (var i = 0; i < this[attrName].options.length; i++) {
                     this.attrMap[attrName](author).forEach(value => {
@@ -123,11 +198,31 @@ export default {
                     conference: conf,
                     type: type,
                     ...statistic[conf][type],
+                    ...new Array(self.structures.length).fill(0).map((d, i) => i).reduce((r, i) => {
+                        r['pattern' + i] = new Array(5).fill(0);
+                        return r;
+                    }, {}),
                     ...self.attrNames.reduce((result, attrName) => {
                         result[attrName + 'Ave'] = statistic[conf][type][attrName + 'Sum'] / statistic[conf][type][attrName + 'Count'];
                         return result;
                     }, {})
                 });
+            });
+        });
+
+        this.structures.forEach((d, i) => {
+            d.authors[1].forEach(name => {
+                var author = authorMap.get(name);
+                var rank = d3.mean(this.attrNames.map((attrName, i) => {
+                    return ranks[i][d3.mean(this.attrMap[attrName](author))]
+                }));
+                var dataRow = dataTable.filter(row => row.conference == author.conference && row.type == author.type)[0];
+                console.log(author, rank, dataRow);
+                if (dataRow) {
+                    dataRow['pattern' + i][Math.floor(rank * 5)]++;
+                } else {
+                    console.error('jackie error!');
+                }
             });
         });
 
@@ -149,6 +244,8 @@ export default {
                 return -1;
             }
         });
+
+        console.log(dataTable);
 
         var render = (dataTable) => {
             d3.select('.table-contents').remove();
@@ -184,10 +281,10 @@ export default {
                                 d3.select(this).text(rowData[dd.attrName]);
                                 d3.select(this)
                                     .attr('style', `line-height: ${ rowHeight }px`);
-                                if(dd.content == 'Conference') {
+                                if (dd.content == 'Conference') {
                                     d3.select(this).classed('conference', true);
                                 }
-                            } else if (dd.attrName && dd.attrName in self.attrMap) {
+                            } else if (dd.attrName) {
                                 var svg = d3.select(this).select('svg');
                                 if (svg.empty()) {
                                     svg = d3.select(this)
@@ -200,7 +297,7 @@ export default {
 
                                 var minOpacity = 0.05;
 
-                                var fillOpacity = rowData[dd.attrName].map(value => (value - min) / (max - min) * (1 - minOpacity) + minOpacity);
+                                var fillOpacity = rowData[dd.attrName].map(value => max == min ? 0 : (value - min) / (max - min) * (1 - minOpacity) + minOpacity);
 
                                 var bars = svg.selectAll('.bar')
                                     .data(fillOpacity);
@@ -228,10 +325,10 @@ export default {
                             }
                         });
                 });
-            
+
             d3.selectAll('.conference')
-                .each(function(d, i) {
-                    if((i - 1) % 3 != 0) {
+                .each(function (d, i) {
+                    if ((i - 1) % 3 != 0) {
                         d3.select(this).text('');
                     }
                 })
@@ -248,11 +345,11 @@ export default {
         tableTitles.exit().remove();
 
         d3.selectAll("div.table-title").each(function (d) {
-            d3.select(this)
-                .append("div")
-                .attr("class", "table-title");
+            // d3.select(this)
+            //     .append("div")
+            //     .attr("class", "table-title");
             if (d.type == "text") {
-                let title = d3.select(this).select("div.table-title");
+                let title = d3.select(this);
                 title.text(d.content);
                 title.attr("style", `box-sizing: border-box;`);
 
@@ -280,7 +377,79 @@ export default {
                         render(dataTable);
                     });
                 }
-            } else if (d.type == "pattern") {}
+            } else if (d.type == "pattern") {
+                var uw = this.clientWidth,
+                    uh = this.clientHeight;
+                var svg = d3.select(this)
+                    .append("svg")
+                    .attr("class", "table-title")
+                    .attr('width', uw)
+                    .attr('height', uh);
+
+                d3ForceCompute(d.content)(graph => {
+                    var {
+                        nodes,
+                        links
+                    } = graph;
+
+                    var id2node = new Map(nodes.map(node => [node.id, node]));
+
+                    var positions = [];
+                    var min_x = Infinity,
+                        min_y = Infinity,
+                        max_x = -Infinity,
+                        max_y = -Infinity;
+
+                    for (var i = 0; i < nodes.length; ++i) {
+                        min_x = Math.min(nodes[i].x, min_x);
+                        max_x = Math.max(nodes[i].x, max_x);
+                        min_y = Math.min(nodes[i].y, min_y);
+                        max_y = Math.max(nodes[i].y, max_y);
+                    }
+
+                    var diameter = Math.min(uw, uh) * 0.5;
+                    for (var i = 0; i < nodes.length; ++i) {
+                        if (Math.abs(max_x - min_x) <= 0.01) {
+                            nodes[i].x = uw / 2;
+                        } else {
+                            nodes[i].x = ((nodes[i].x - min_x) / (max_x - min_x)) * diameter + uw / 2 - diameter / 2;
+                        }
+
+                        if (Math.abs(max_y - min_y) <= 0.01) {
+                            nodes[i].y = uh / 2;
+                        } else {
+                            nodes[i].y = ((nodes[i].y - min_y) / (max_y - min_y)) * diameter + uh / 2 - diameter / 2;
+                        }
+                    }
+
+                    var lines = svg.selectAll('line.line')
+                        .data(links);
+
+                    lines.enter()
+                        .append('line')
+                        .attr('class', 'line')
+                        .attr('x1', d => d.source.x)
+                        .attr('y1', d => d.source.y)
+                        .attr('x2', d => d.target.x)
+                        .attr('y2', d => d.target.y)
+                        .attr('stroke-width', Math.min(5, diameter / 10));
+
+                    lines.exit().remove();
+
+                    var dots = svg.selectAll('circle.dot')
+                        .data(nodes);
+
+                    dots.enter()
+                        .append('circle')
+                        .attr('class', 'dot')
+                        .attr('cx', d => d.x)
+                        .attr('cy', d => d.y)
+                        .attr('r', Math.min(diameter / 10, 5));
+
+                    dots.exit().remove();
+                });
+
+            }
         });
 
         render(dataTable);
@@ -303,7 +472,7 @@ div#graphtable {
         display: flex;
         border-bottom: 2px solid #dadada;
 
-        div.table-title {
+        .table-title {
             flex: 1;
             line-height: 120px;
             position: relative;
@@ -327,6 +496,14 @@ div#graphtable {
                 top: 45px;
                 font-size: 20px;
 
+            }
+
+            .dot {
+                fill: #000;
+            }
+
+            .line {
+                stroke: #999;
             }
         }
     }
