@@ -5,8 +5,9 @@
 <script>
 import * as d3 from "d3";
 import connectedComponents from "./connectedComponents.js";
-// import * as graph from  "../../../../data/output/gen_data.json";
-import * as strucPatternURI from "../../../../data/output/edges-0.5.csv";
+import { clearTimeout } from 'timers';
+import * as frePatterns from  "../../../../data/output/publication-0.3.json";
+// import * as strucPatternURI from "../../../../data/output/edges-0.5.csv";
 
 function d3ForceCompute(graph) {
     return function(callback) {
@@ -42,27 +43,27 @@ export default {
     methods: {},
     created: function() {},
     mounted: function() {
-        var byteString = atob(strucPatternURI.split(",")[1]);
-        var links = [];
-        byteString.split("\n").forEach(str => {
-            var [source, target] = str.split(",");
-            if (source && source.length > 0 && target && target.length > 0) {
-                links.push({ source, target });
-            }
-        });
-        var nodeSet = new Set();
-        links.forEach(link => {
-            nodeSet.add(link.source);
-            nodeSet.add(link.target);
-        });
-        var nodes = Array.from(nodeSet).map(id => ({ id }));
+        // var byteString = atob(strucPatternURI.split(",")[1]);
+        // var links = [];
+        // byteString.split("\n").forEach(str => {
+        //     var [source, target] = str.split(",");
+        //     if (source && source.length > 0 && target && target.length > 0) {
+        //         links.push({ source, target });
+        //     }
+        // });
+        // var nodeSet = new Set();
+        // links.forEach(link => {
+        //     nodeSet.add(link.source);
+        //     nodeSet.add(link.target);
+        // });
+        // var nodes = Array.from(nodeSet).map(id => ({ id }));
 
-        var frePatterns = connectedComponents({
-            nodes,
-            links
-        });
+        // var frePatterns = connectedComponents({
+        //     nodes,
+        //     links
+        // });
 
-        console.log(frePatterns);
+        // console.log(frePatterns);
 
         var w = this.$el.clientWidth,
             h = this.$el.clientHeight,
@@ -77,6 +78,32 @@ export default {
             .append("svg")
             .attr("width", w)
             .attr("height", h);
+
+        for(let i = 1; i < x; i++) {
+            svg.append('line')
+                .attr('x1', i * uw)
+                .attr('x2', i * uw)
+                .attr('y1', 0)
+                .attr('y2', h)
+                .attr('stroke', '#eaecee')
+                .attr('stroke-width', 1);
+        }
+
+        for(let j = 0; j < y; j++) {
+            svg.append('line')
+                .attr('y1', j * uh)
+                .attr('y2', j * uh)
+                .attr('x1', 0)
+                .attr('x2', w)
+                .attr('stroke', '#eaecee')
+                .attr('stroke-width', 1);
+        }
+
+        var getFreBarHeight = () => 10;
+        var maxFre = frePatterns.reduce((max, v) => Math.max(max, v.freq), 0);
+        var getFreBarWidth = (fre) => {
+            return fre / maxFre * (uw * 0.9);
+        }
 
         frePatterns.forEach((frePattern, i) => {
             var g = svg
@@ -108,12 +135,23 @@ export default {
                     min_y = Math.min(nodes[i].y, min_y);
                     max_y = Math.max(nodes[i].y, max_y);
 				}
-				
-                var diameter = Math.min(uw, uh) - 40;
+                
+                
+                var diameter = Math.min(uw, uh)  * 0.5;
                 for (var i = 0; i < nodes.length; ++i) {
-                    nodes[i].x = ((nodes[i].x - min_x) / (max_x - min_x)) * diameter + uw / 2 - diameter / 2;
-                    nodes[i].y = ((nodes[i].y - min_y) / (max_y - min_y)) * diameter + uh / 2 - diameter / 2;
-				}
+                    if(Math.abs(max_x - min_x) <= 0.01) {
+                        nodes[i].x = uw / 2;
+                    } else {
+                        nodes[i].x = ((nodes[i].x - min_x) / (max_x - min_x)) * diameter + uw / 2 - diameter / 2;
+                    }
+
+                    if(Math.abs(max_y - min_y) <= 0.01) {
+                        nodes[i].y = uh / 2;
+                    } else {
+                        nodes[i].y = ((nodes[i].y - min_y) / (max_y - min_y)) * diameter + uh / 2 - diameter / 2;
+                    }
+                    nodes[i].y -= getFreBarHeight() / 2;
+                }
 
 				var lines = g.selectAll('line.line')
 					.data(links);
@@ -124,7 +162,8 @@ export default {
 					.attr('x1', d => d.source.x)
 					.attr('y1', d => d.source.y)
 					.attr('x2', d => d.target.x)
-					.attr('y2', d => d.target.y);
+                    .attr('y2', d => d.target.y)
+                    .attr('stroke-width', Math.min(5, diameter / 10));
 				
 				lines.exit().remove();
 
@@ -136,9 +175,17 @@ export default {
 					.attr('class', 'dot')
 					.attr('cx', d => d.x)
 					.attr('cy', d => d.y)
-					.attr('r', 5);
+					.attr('r', Math.min(diameter / 10, 5));
 				
-				dots.exit().remove();
+                dots.exit().remove();
+
+                var bar = g.append('line')
+                    .attr('x1', 0)
+                    .attr('x2', getFreBarWidth(graph.freq))
+                    .attr('y1', uh - getFreBarHeight() / 2)
+                    .attr('y2', uh - getFreBarHeight() / 2)
+                    .attr('stroke-width', getFreBarHeight())
+                    .attr('stroke', '#FFB300')
             });
         });
     }
@@ -165,13 +212,10 @@ export default {
 
 	.dot {
         fill: #000;
-        cursor: crosshair;
     }
 
     .line {
         stroke: #999;
-        stroke-width: 5;
-        cursor: crosshair;
     }
 }
 </style>
