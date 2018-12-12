@@ -6,7 +6,7 @@ import copy
 import time
 import networkx as nx
 from scipy.sparse import csgraph
-from fun.gk_weisfeiler_lehman import compare
+from gk_weisfeiler_lehman import compare
 
 from sklearn.cluster import DBSCAN
 

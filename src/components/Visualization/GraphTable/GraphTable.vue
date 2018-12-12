@@ -38,17 +38,16 @@ export default {
             this[attrName] = this.$store.state.attribute[attrName];
         });
     },
-    updated: function () {
-        console.log('graphtable updated!');
-    },
     mounted: function () {
         let columnTitles = [{
                 content: "Conference",
                 type: "text",
+                attrName: 'conference'
             },
             {
                 content: "Type",
-                type: "text"
+                type: "text",
+                attrName: 'type'
             },
             {
                 content: "Published Time",
@@ -94,9 +93,6 @@ export default {
             } else if (d.type == "pattern") {}
         });
 
-        console.log("authors", { ...this.authors[0]
-        });
-
         var statistic = {};
 
         this.authors.forEach(author => {
@@ -130,101 +126,92 @@ export default {
             });
         });
 
+        var dataTable = [];
+        Object.keys(statistic).forEach(conf => {
+            Object.keys(statistic[conf]).sort().forEach(type => {
+                dataTable.push({
+                    conference: conf,
+                    type: type,
+                    ...statistic[conf][type]
+                });
+            });
+        });
+
         var rowWidth = d3.select(".table-contents").node().clientWidth,
             rowHeight = 50;
 
-        var multiRows = d3.select(".table-contents")
-            .selectAll(".table-multi-rows")
-            .data(Object.keys(statistic));
+        var rows = d3.select('.table-contents')
+            .selectAll(".table-row")
+            .data(dataTable);
 
-        multiRows.enter()
+        rows.enter()
             .append('div')
-            .attr('class', 'table-multi-rows')
-            .attr('style', d => `height: ${Object.keys(statistic[d]).length * rowHeight}px;`);
+            .attr('class', 'table-row')
+            .attr('style', d => `height: ${rowHeight}px`);
 
-        multiRows.exit().remove();
+        rows.exit().remove();
 
-        multiRows = d3.selectAll(".table-multi-rows");
+        rows = d3.select('.table-contents')
+            .selectAll(".table-row");
 
         var self = this;
-        var diameter = undefined, padding = undefined;
 
-        multiRows.each(function (conf) {
-            var multiRow = d3.select(this);
-            var columns = multiRow.selectAll('.table-column').data(columnTitles);
+        var diameter = -1, padding = -1;
+
+        rows.each(function (rowData) {
+            var row = d3.select(this);
+            var columns = row.selectAll('.table-column').data(columnTitles);
             columns.enter().append('div').attr('class', 'table-column');
             columns.exit().remove();
 
-            var types = Object.keys(statistic[conf]);
+            row.selectAll('.table-column')
+                .each(function (dd) {
+                    if (dd.content == 'Conference' || dd.content == 'Type') {
+                        d3.select(this).text(rowData[dd.attrName]);
+                        d3.select(this)
+                            .attr('style', `line-height: ${ rowHeight }px`)
+                    } else if (dd.attrName && dd.attrName in self.attrMap) {
+                        var svg = d3.select(this)
+                            .append('svg')
+                            .attr('class', 'table-column-svg');
 
-            multiRow.selectAll('.table-column').each(function (dd) {
-                if (dd.content == 'Conference') {
-                    d3.select(this).text(conf);
-                    d3.select(this)
-                        .attr('style', `line-height: ${ Object.keys(statistic[conf]).length * rowHeight }px`)
-                } else if (dd.content == 'Type') {
-                    var rows = d3.select(this)
-                        .selectAll('.table-row')
-                        .data(types);
-                    rows.enter()
-                        .append('div')
-                        .attr('class', 'table-row')
-                        .attr('style', function (d) {
-                            return `line-height: ${this.clientHeight}px`;
-                        }).text(d => d);
-                    rows.exit().remove();
-                } else if (dd.attrName && dd.attrName in self.attrMap) {
-                    var rows = d3.select(this)
-                        .selectAll('.table-row')
-                        .data(types);
-                    rows.enter()
-                        .append('svg')
-                        .attr('class', 'table-row');
-                    rows.exit().remove();
+                        var max = rowData[dd.attrName].reduce((max, value) => Math.max(value, max), 0),
+                            min = rowData[dd.attrName].reduce((min, value) => Math.min(value, min), 0);
 
-                    d3.select(this)
-                        .selectAll('.table-row')
-                        .each(function (type) {
-                            var max = statistic[conf][type][dd.attrName].reduce((max, value) => Math.max(value, max), 0),
-                                min = statistic[conf][type][dd.attrName].reduce((min, value) => Math.min(value, min), 0);
-                            
-                            var minOpacity = 0.05;
+                        var minOpacity = 0.05;
 
-                            statistic[conf][type][dd.attrName] = statistic[conf][type][dd.attrName].map(value => (value - min) / (max - min) * (1 -minOpacity) + minOpacity);
+                        rowData[dd.attrName] = rowData[dd.attrName].map(value => (value - min) / (max - min) * (1 - minOpacity) + minOpacity);
 
-                            
+                        var bars = svg.selectAll('.bar')
+                            .data(rowData[dd.attrName]);
 
-                            var bars = d3.select(this)
-                                .selectAll('.bar')
-                                .data(statistic[conf][type][dd.attrName]);
+                        bars.enter()
+                            .append('rect')
+                            .attr('class', 'bar');
 
-                            bars.enter()
-                                .append('rect')
-                                .attr('class', 'bar');
+                        bars.exit().remove();
 
-                            bars.exit().remove();
+                        diameter = diameter > 0 ? diameter : this.clientHeight * 0.4;
+                        padding = padding > 0 ? padding : this.clientHeight * 0.3;
 
-                            diameter = diameter ? diameter : this.clientHeight * 0.4,
-                            padding = padding ? padding : this.clientHeight * 0.3;
-                            
-                            var begin = this.clientWidth / 2 - ((padding + diameter) * statistic[conf][type][dd.attrName].length + padding) / 2 + padding;
+                        var begin = this.clientWidth / 2 - ((padding + diameter) * rowData[dd.attrName].length + padding) / 2 + padding;
 
-                            d3.select(this)
-                                .selectAll('.bar')
-                                .attr('x', function (d, i) {
-                                    return begin + i * (padding + diameter)
-                                })
-                                .attr('y', padding)
-                                .attr('width', diameter)
-                                .attr('height', diameter)
-                                .attr('fill', '#FFB300')
-                                .attr('fill-opacity', d => d);
-
-                        });
-                }
-            });
+                        svg.selectAll('.bar')
+                            .attr('x', function (d, i) {
+                                return begin + i * (padding + diameter)
+                            })
+                            .attr('y', padding)
+                            .attr('width', diameter)
+                            .attr('height', diameter)
+                            .attr('fill', '#FFB300')
+                            .attr('fill-opacity', d => d);
+                    }
+                });
         });
-    }
+    },
+    updated: function () {
+        console.log('graphtable updated!');
+    },
 };
 </script>
 
@@ -253,7 +240,7 @@ div#graphtable {
         flex: 1;
         overflow: auto;
 
-        div.table-multi-rows {
+        div.table-row {
             width: 100%;
             display: flex;
 
@@ -264,10 +251,6 @@ div#graphtable {
                 border-bottom: 1px solid #eaecee;
                 display: flex;
                 flex-direction: column;
-
-                .table-row {
-                    flex: 1;
-                }
             }
         }
     }
