@@ -1,8 +1,7 @@
 # coding=utf-8
 from flask import Flask, jsonify, request, json
 from flask_cors import CORS
-from knn import back_test,init
-
+from knn import back_test, init
 
 url = "bolt://localhost:7687"
 user = 'neo4j'
@@ -21,7 +20,7 @@ opt = ''
 def knn_query():
 	## 传入{search_nodes:[],search_links:[]}
 
-	k = 100
+	k = 500
 	cos_min = 0.01
 	max_num = 20
 	min_num = 3
@@ -43,19 +42,21 @@ def knn_query():
 		links = dic['search_links']
 	if 'search_links' in dic:
 		search_links = dic['search_links']
+	if 'name' in dic:
+		name = dic['name']
+	if 'rela' in dic:
+		rela = dic['rela']
 	print('search_nodes', search_nodes)
 	print('k', k)
 	print('cos_min', cos_min)
 	search_nodes = list(map(lambda x: int(x), search_nodes))
 	min_num = len(search_nodes)
 	max_num = min_num
-	knn_nodes_graph = back_test(
-		search_nodes, k, cos_min, max_num, min_num, search_links)
-	print(knn_nodes_graph)
-	res = []
-	for i in knn_nodes_graph.values():
-		res.extend(i)
-	return json.dumps(res)
+	nodes, names = back_test(
+		search_nodes, k, cos_min, max_num, min_num, search_links, name, rela)
+	print(nodes, names)
+	return json.dumps([nodes, names])
+
 
 if __name__ == '__main__':
 	init()

@@ -302,9 +302,13 @@ export default {
         var res = this.getStructure()
         var nodes = res.nodesArr
         var links = res.linksArr
-        axios.post('http://127.0.0.1:5000/knnQuery', { search_nodes:nodes, search_links:links })
+        var name = this.$store.state.attribute.authorsFilted.map(d=>d.author)
+        var rela ={}
+        this.$store.state.attribute.authorsRelation.forEach(d=>{ rela[d.author] = d.coauthors})
+        axios.post('http://127.0.0.1:5000/knnQuery', { search_nodes:nodes, search_links:links,name:name, rela:rela})
           .then((d) =>{
             console.log(d.data)
+
           })
       }
 
