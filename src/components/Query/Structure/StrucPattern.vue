@@ -6,7 +6,7 @@
 import * as d3 from "d3";
 import connectedComponents from "./connectedComponents.js";
 import { clearTimeout } from 'timers';
-import * as frePatterns from  "../../../../data/output/publication-0.3.json";
+import * as frePatterns from  "../../../../data/output/publication-fake.json";
 // import * as strucPatternURI from "../../../../data/output/edges-0.5.csv";
 
 function d3ForceCompute(graph) {

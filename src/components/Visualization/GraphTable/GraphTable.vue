@@ -30,6 +30,7 @@ export default {
         this.authors = this.$store.state.attribute.authorsFilted;
         this.matchResults= this.$store.state.attribute.matchResults;
         console.log(this.matchResults)
+
         const {
             year,
             paper,
@@ -45,14 +46,12 @@ export default {
         let columnTitles = [{
                 content: "Conference",
                 type: "text",
-                attrName: 'conference',
-                sortBasis: "conference"
+                attrName: 'conference'
             },
             {
                 content: "Type",
                 type: "text",
-                attrName: 'type',
-                sortBasis: 'type'
+                attrName: 'type'
             },
             {
                 content: "Published Time",
@@ -135,10 +134,27 @@ export default {
             });
         });
 
+        dataTable.sort((a, b) => {
+            if (a.type > b.type) {
+                return 1;
+            } else if (a.type == b.type) {
+                return 0;
+            } else {
+                return -1;
+            }
+        });
+        dataTable.sort((a, b) => {
+            if (a.conference > b.conference) {
+                return 1;
+            } else if (a.conference == b.conference) {
+                return 0;
+            } else {
+                return -1;
+            }
+        });
+
         var render = (dataTable) => {
             d3.select('.table-contents').remove();
-            // d3.select('.table-titles').remove();
-            // d3.select('#graphtable').append("div").attr('class', 'table-titles');
             d3.select('#graphtable').append("div").attr('class', 'table-contents');
 
             var rowWidth = d3.select(".table-contents").node().clientWidth,
@@ -170,7 +186,10 @@ export default {
                             if (dd.content == 'Conference' || dd.content == 'Type') {
                                 d3.select(this).text(rowData[dd.attrName]);
                                 d3.select(this)
-                                    .attr('style', `line-height: ${ rowHeight }px`)
+                                    .attr('style', `line-height: ${ rowHeight }px`);
+                                if(dd.content == 'Conference') {
+                                    d3.select(this).classed('conference', true);
+                                }
                             } else if (dd.attrName && dd.attrName in self.attrMap) {
                                 var svg = d3.select(this).select('svg');
                                 if (svg.empty()) {
@@ -212,6 +231,13 @@ export default {
                             }
                         });
                 });
+
+            d3.selectAll('.conference')
+                .each(function(d, i) {
+                    if((i - 1) % 3 != 0) {
+                        d3.select(this).text('');
+                    }
+                })
         };
 
         var tableTitles = d3.select(".table-titles")
@@ -233,29 +259,30 @@ export default {
                 title.text(d.content);
                 title.attr("style", `box-sizing: border-box;`);
 
-                var sortButton = title.append('button')
-                    .text('↕')
-                    .attr('title', 'sort');
+                if (d.sortBasis) {
+                    var sortButton = title.append('button')
+                        .text('↕')
+                        .attr('title', 'sort');
 
-                let flag = 1;
+                    let flag = 1;
 
-                sortButton.on('click', () => {
-                    flag = -1 * flag;
-                    dataTable.sort((a, b) => {
-                        if(typeof(d.sortBasis) == 'string') {
-                            if(a[d.sortBasis] > b[d.sortBasis]) {
-                                return 1 * flag;
-                            } else if(a[d.sortBasis] == b[d.sortBasis]){
-                                return 0 * flag;
-                            } else {
-                                return -1 * flag;
-                            }
-                        } else {
+                    sortButton.on('click', () => {
+                        flag = -1 * flag;
+                        dataTable.sort((a, b) => {
                             return (a[d.sortBasis] - b[d.sortBasis]) * flag;
-                        }
+                        });
+                        dataTable.sort((a, b) => {
+                            if (a.conference > b.conference) {
+                                return 1;
+                            } else if (a.conference == b.conference) {
+                                return 0;
+                            } else {
+                                return -1;
+                            }
+                        });
+                        render(dataTable);
                     });
-                    render(dataTable);
-                });
+                }
             } else if (d.type == "pattern") {}
         });
 
@@ -275,19 +302,34 @@ div#graphtable {
 
     div.table-titles {
         width: 100%;
-        height: 60px;
+        height: 120px;
         display: flex;
         border-bottom: 2px solid #dadada;
 
         div.table-title {
             flex: 1;
-            line-height: 60px;
+            line-height: 120px;
             position: relative;
 
             button {
                 position: absolute;
+                justify-content: center;
+                align-items: center;
+                display: flex;
+                line-height: 24px;
+                font-size: 14px;
+                color: #777;
+                padding: 0 10px;
+                margin: 0 5px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 200ms, color 200ms;
+
+                position: absolute;
                 right: 20px;
-                top: 19px;
+                top: 45px;
+                font-size: 20px;
+
             }
         }
     }
@@ -307,6 +349,10 @@ div#graphtable {
                 border-bottom: 1px solid #eaecee;
                 display: flex;
                 flex-direction: column;
+            }
+
+            div.conference {
+                border: none;
             }
         }
     }
