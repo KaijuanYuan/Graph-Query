@@ -1,6 +1,5 @@
 //根据新应用的约束过滤数据
 function filtData(constrInApply, autList) {
-    alert("test test test~")
 
     let year = [0, 0]
     let paper = [0, 0]
