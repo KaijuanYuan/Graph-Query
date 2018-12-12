@@ -295,9 +295,9 @@ export default {
                                 var max = rowData[dd.attrName].reduce((max, value) => Math.max(value, max), 0),
                                     min = rowData[dd.attrName].reduce((min, value) => Math.min(value, min), 0);
 
-                                var minOpacity = 0.05;
+                                var minOpacity = max == min ? 0 : 0.05;
 
-                                var fillOpacity = rowData[dd.attrName].map(value => max == min ? 0 : (value - min) / (max - min) * (1 - minOpacity) + minOpacity);
+                                var fillOpacity = rowData[dd.attrName].map(value => value == 0 ? 0 : (value - min) / (max - min) * (1 - minOpacity) + minOpacity);
 
                                 var bars = svg.selectAll('.bar')
                                     .data(fillOpacity);
