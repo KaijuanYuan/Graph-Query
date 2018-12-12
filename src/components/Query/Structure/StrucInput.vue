@@ -325,13 +325,14 @@ export default {
 
 .apply0 {
   width: 20%;
-  position: relative;
-  top: 290px;
-  left: 350px;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
   justify-content: center;
   align-items: center;
   display: flex;
   height: 24px;
+  line-height: 24px;
   font-size: 14px;
   color: #777;
   padding: 0 10px;
@@ -348,7 +349,7 @@ export default {
 
 }
 .strucInput {
-
+    position: relative;
     flex: 0 0 calc(100% - #{$PATTERN_FORCED_WIDTH});
     border-style: solid;
     border-width: 1px;
