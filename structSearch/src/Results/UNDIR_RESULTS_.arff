@@ -1,7 +1,7 @@
 % Per node motif count results
 %
 % Tested Graph: ./data/graphlets_test_csv.npz
-% Run Date/Time: 12/12/2018
+% Run Date/Time: 12/13/2018
 %
 
 @RELATION motif_count
@@ -21,6 +21,7 @@
 @ATTRIBUTE ASType {1, 2, 3, 4}
 
 @DATA
-0,0,0,0,0,0,0,0,0,0,0,0,?
-1,0,0,0,0,0,0,0,0,0,0,0,?
-2,0,0,0,0,0,0,0,0,0,0,0,?
+0,0,0,0,0,0,0,0,0,0,0,1,?
+1,0,0,0,0,0,0,0,0,0,0,1,?
+2,0,0,0,0,0,0,0,0,0,0,1,?
+3,0,0,0,0,0,0,0,0,0,0,1,?

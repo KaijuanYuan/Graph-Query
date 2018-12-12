@@ -12,9 +12,13 @@
 import * as d3 from "d3";
 export default {
     name: "GraphTable",
-    data: () => ({}),
+    data:{
+      matchResults :[],
+      authors:[]
+    },
     computed: {},
     methods: {},
+
     created: function () {
         this.attrNames = ["year", "paper", "coNumber", "coWeight"];
         this.attrMap = {
@@ -23,11 +27,9 @@ export default {
             coNumber: author => [author.coauthors.length],
             coWeight: author => author.coauthors.map(ca => ca.weight)
         };
-
-        console.log('matchResults', this.$store.state.matchResults);
-
         this.authors = this.$store.state.attribute.authorsFilted;
-
+        this.matchResults= this.$store.state.attribute.matchResults;
+        console.log(this.matchResults)
         const {
             year,
             paper,

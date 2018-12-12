@@ -25,10 +25,11 @@ export default {
         getYear(state) {
             return state.year
         },
+
     },
     mutations: {
-        getMatchResults(state, results){
-          state.matchResults = results
+        GETMATCHRESULTS(state, results){
+            state.matchResults = results
         },
         increment(state) {
             state.count++
@@ -468,10 +469,10 @@ export default {
             commit('attrWeight', rootState.coauthorWei)
             commit('initAuthors', rootState.authors, rootState.relations)
             alert('Now is in attrYear~')
-
-
         },
-
+        getMatchResults({state, commit}, r){
+          commit('GETMATCHRESULTS',r)
+        }
     },
 }
 

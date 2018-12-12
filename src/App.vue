@@ -27,14 +27,14 @@ export default {
     "visualization": Visualization,
   },
   created () {
-    axios.post('http://127.0.0.1:5000/aaaa', { id: 12345, nodes: [1,2,3,4,5,6,7,8,9], contraints: '123445' })
-      .then((d) =>{
-        console.log(d.data)
-      })
-    axios.post('http://127.0.0.1:5000/bbbb', { id: 12345, nodes: [1,2,3,4,5,6,7,8,9], contraints: '123445' })
-      .then((d) =>{
-        console.log(d.data)
-      })
+    // axios.post('http://127.0.0.1:5000/aaaa', { id: 12345, nodes: [1,2,3,4,5,6,7,8,9], contraints: '123445' })
+    //   .then((d) =>{
+    //     console.log(d.data)
+    //   })
+    // axios.post('http://127.0.0.1:5000/bbbb', { id: 12345, nodes: [1,2,3,4,5,6,7,8,9], contraints: '123445' })
+    //   .then((d) =>{
+    //     console.log(d.data)
+    //   })
   }
 }
 </script>
