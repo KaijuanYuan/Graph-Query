@@ -1,6 +1,6 @@
 <template>
     <div class="strucInput">
-      <button  v-on:click="sendStruct" >Search</button>
+      <button class="apply0"  v-on:click="sendStruct" >Search</button>
     </div>
 </template>
 
@@ -323,7 +323,32 @@ export default {
 <style lang="scss">
 @import "../../../styles/Constants.scss";
 
+.apply0 {
+  width: 20%;
+  position: relative;
+  top: 290px;
+  left: 350px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  height: 24px;
+  font-size: 14px;
+  color: #777;
+  padding: 0 10px;
+  margin: 0 5px;
+  background-color: $GRAY0;
+  border: 1px solid $GRAY3;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 200ms, color 200ms;
+
+  &:hover {
+    background-color: $GRAY1;
+  }
+
+}
 .strucInput {
+
     flex: 0 0 calc(100% - #{$PATTERN_FORCED_WIDTH});
     border-style: solid;
     border-width: 1px;
