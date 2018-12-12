@@ -118,7 +118,6 @@ export default {
             // 	.attr('height', uh);
 
             d3ForceCompute(frePattern)(graph => {
-                console.log(graph);
 				var { nodes, links } = graph;
 				
 				var id2node = new Map(nodes.map(node => [node.id, node]));
