@@ -23,8 +23,9 @@ export default {
             coNumber: author => [author.coauthors.length],
             coWeight: author => author.coauthors.map(ca => ca.weight)
         };
-        console.log({ ...this.$store.state.attribute
-        });
+
+        console.log('matchResults', this.$store.state.matchResults);
+
         this.authors = this.$store.state.attribute.authorsFilted;
 
         const {
@@ -42,37 +43,176 @@ export default {
         let columnTitles = [{
                 content: "Conference",
                 type: "text",
-                attrName: 'conference'
+                attrName: 'conference',
+                sortBasis: "conference"
             },
             {
                 content: "Type",
                 type: "text",
-                attrName: 'type'
+                attrName: 'type',
+                sortBasis: 'type'
             },
             {
                 content: "Published Time",
                 type: "text",
-                attrName: "year"
+                attrName: "year",
+                sortBasis: 'yearAve'
             },
             {
                 content: "Publications",
                 type: "text",
-                attrName: "paper"
+                attrName: "paper",
+                sortBasis: 'paperAve'
             },
             {
                 content: "Coauthors",
                 type: "text",
-                attrName: "coNumber"
+                attrName: "coNumber",
+                sortBasis: 'coNumberAve'
             },
             {
                 content: "Cooperation Times",
                 type: "text",
-                attrName: "coWeight"
+                attrName: "coWeight",
+                sortBasis: 'coWeightAve'
             }
         ];
 
-        var tableTitles = d3
-            .select("#graphtable .table-titles")
+        var statistic = {};
+
+        this.authors.forEach(author => {
+            var conference = author.conference;
+            var type = author.type;
+            statistic[conference] = statistic[conference] ?
+                statistic[conference] : {};
+            statistic[conference][type] = statistic[conference][type] ?
+                statistic[conference][type] :
+                this.attrNames.reduce((result, attrName) => {
+                    result[attrName] = new Array(
+                        this[attrName].options.length
+                    ).fill(0);
+                    result[attrName + 'Sum'] = 0;
+                    result[attrName + 'Count'] = 0;
+                    return result;
+                }, {});
+
+            this.attrNames.forEach(attrName => {
+                var statis = statistic[conference][type];
+                this.attrMap[attrName](author).forEach(value => {
+                    statis[attrName + 'Sum'] += +value;
+                    statis[attrName + 'Count']++;
+                })
+
+                for (var i = 0; i < this[attrName].options.length; i++) {
+                    this.attrMap[attrName](author).forEach(value => {
+                        if (value >= this[attrName].options[i].leftRange) {
+                            if ((i == this[attrName].options.length - 1 && value == this[attrName].options[i].rightRange) ||
+                                value < this[attrName].options[i].rightRange) {
+                                statis[attrName][i]++;
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        var self = this;
+
+        var dataTable = [];
+        Object.keys(statistic).forEach(conf => {
+            Object.keys(statistic[conf]).sort().forEach(type => {
+                dataTable.push({
+                    conference: conf,
+                    type: type,
+                    ...statistic[conf][type],
+                    ...self.attrNames.reduce((result, attrName) => {
+                        result[attrName + 'Ave'] = statistic[conf][type][attrName + 'Sum'] / statistic[conf][type][attrName + 'Count'];
+                        return result;
+                    }, {})
+                });
+            });
+        });
+
+        var render = (dataTable) => {
+            d3.select('.table-contents').remove();
+            // d3.select('.table-titles').remove();
+            // d3.select('#graphtable').append("div").attr('class', 'table-titles');
+            d3.select('#graphtable').append("div").attr('class', 'table-contents');
+
+            var rowWidth = d3.select(".table-contents").node().clientWidth,
+                rowHeight = 50;
+
+            var diameter = -1,
+                padding = -1;
+
+            var rows = d3.select('.table-contents')
+                .selectAll(".table-row")
+                .data(dataTable, function (d, i) {
+                    return i;
+                });
+
+            rows.exit().remove();
+
+            rows.enter()
+                .append('div')
+                .attr('class', 'table-row')
+                .attr('style', d => `height: ${rowHeight}px`)
+                .each(function (rowData) {
+                    var row = d3.select(this);
+                    var columns = row.selectAll('.table-column').data(columnTitles);
+                    columns.enter().append('div').attr('class', 'table-column');
+                    columns.exit().remove();
+
+                    row.selectAll('.table-column')
+                        .each(function (dd) {
+                            if (dd.content == 'Conference' || dd.content == 'Type') {
+                                d3.select(this).text(rowData[dd.attrName]);
+                                d3.select(this)
+                                    .attr('style', `line-height: ${ rowHeight }px`)
+                            } else if (dd.attrName && dd.attrName in self.attrMap) {
+                                var svg = d3.select(this).select('svg');
+                                if (svg.empty()) {
+                                    svg = d3.select(this)
+                                        .append('svg')
+                                        .attr('class', 'table-column-svg');
+                                }
+
+                                var max = rowData[dd.attrName].reduce((max, value) => Math.max(value, max), 0),
+                                    min = rowData[dd.attrName].reduce((min, value) => Math.min(value, min), 0);
+
+                                var minOpacity = 0.05;
+
+                                var fillOpacity = rowData[dd.attrName].map(value => (value - min) / (max - min) * (1 - minOpacity) + minOpacity);
+
+                                var bars = svg.selectAll('.bar')
+                                    .data(fillOpacity);
+
+                                bars.enter()
+                                    .append('rect')
+                                    .attr('class', 'bar');
+
+                                bars.exit().remove();
+
+                                diameter = diameter > 0 ? diameter : this.clientHeight * 0.4;
+                                padding = padding > 0 ? padding : this.clientHeight * 0.3;
+
+                                var begin = this.clientWidth / 2 - ((padding + diameter) * rowData[dd.attrName].length + padding) / 2 + padding;
+
+                                svg.selectAll('.bar')
+                                    .attr('x', function (d, i) {
+                                        return begin + i * (padding + diameter)
+                                    })
+                                    .attr('y', padding)
+                                    .attr('width', diameter)
+                                    .attr('height', diameter)
+                                    .attr('fill', '#FFB300')
+                                    .attr('fill-opacity', d => d);
+                            }
+                        });
+                });
+        };
+
+        var tableTitles = d3.select(".table-titles")
             .selectAll("div.table-title")
             .data(columnTitles);
 
@@ -90,128 +230,35 @@ export default {
                 let title = d3.select(this).select("div.table-title");
                 title.text(d.content);
                 title.attr("style", `box-sizing: border-box;`);
+
+                var sortButton = title.append('button')
+                    .text('↕')
+                    .attr('title', 'sort');
+
+                let flag = 1;
+
+                sortButton.on('click', () => {
+                    flag = -1 * flag;
+                    dataTable.sort((a, b) => {
+                        if(typeof(d.sortBasis) == 'string') {
+                            if(a[d.sortBasis] > b[d.sortBasis]) {
+                                return 1 * flag;
+                            } else if(a[d.sortBasis] == b[d.sortBasis]){
+                                return 0 * flag;
+                            } else {
+                                return -1 * flag;
+                            }
+                        } else {
+                            return (a[d.sortBasis] - b[d.sortBasis]) * flag;
+                        }
+                    });
+                    render(dataTable);
+                });
             } else if (d.type == "pattern") {}
         });
 
-        var statistic = {};
-
-        this.authors.forEach(author => {
-            var conference = author.conference;
-            var type = author.type;
-            statistic[conference] = statistic[conference] ?
-                statistic[conference] : {};
-            statistic[conference][type] = statistic[conference][type] ?
-                statistic[conference][type] :
-                this.attrNames.reduce((result, attrName) => {
-                    result[attrName] = new Array(
-                        this[attrName].options.length
-                    ).fill(0);
-                    return result;
-                }, {});
-
-            this.attrNames.forEach(attrName => {
-                for (var i = 0; i < this[attrName].options.length; i++) {
-                    var statis = statistic[conference][type][
-                        attrName
-                    ];
-                    this.attrMap[attrName](author).forEach(value => {
-                        if (value >= this[attrName].options[i].leftRange) {
-                            if ((i == this[attrName].options.length - 1 && value == this[attrName].options[i].rightRange) ||
-                                value < this[attrName].options[i].rightRange) {
-                                statis[i]++;
-                            }
-                        }
-                    });
-                }
-            });
-        });
-
-        var dataTable = [];
-        Object.keys(statistic).forEach(conf => {
-            Object.keys(statistic[conf]).sort().forEach(type => {
-                dataTable.push({
-                    conference: conf,
-                    type: type,
-                    ...statistic[conf][type]
-                });
-            });
-        });
-
-        var rowWidth = d3.select(".table-contents").node().clientWidth,
-            rowHeight = 50;
-
-        var rows = d3.select('.table-contents')
-            .selectAll(".table-row")
-            .data(dataTable);
-
-        rows.enter()
-            .append('div')
-            .attr('class', 'table-row')
-            .attr('style', d => `height: ${rowHeight}px`);
-
-        rows.exit().remove();
-
-        rows = d3.select('.table-contents')
-            .selectAll(".table-row");
-
-        var self = this;
-
-        var diameter = -1, padding = -1;
-
-        rows.each(function (rowData) {
-            var row = d3.select(this);
-            var columns = row.selectAll('.table-column').data(columnTitles);
-            columns.enter().append('div').attr('class', 'table-column');
-            columns.exit().remove();
-
-            row.selectAll('.table-column')
-                .each(function (dd) {
-                    if (dd.content == 'Conference' || dd.content == 'Type') {
-                        d3.select(this).text(rowData[dd.attrName]);
-                        d3.select(this)
-                            .attr('style', `line-height: ${ rowHeight }px`)
-                    } else if (dd.attrName && dd.attrName in self.attrMap) {
-                        var svg = d3.select(this)
-                            .append('svg')
-                            .attr('class', 'table-column-svg');
-
-                        var max = rowData[dd.attrName].reduce((max, value) => Math.max(value, max), 0),
-                            min = rowData[dd.attrName].reduce((min, value) => Math.min(value, min), 0);
-
-                        var minOpacity = 0.05;
-
-                        rowData[dd.attrName] = rowData[dd.attrName].map(value => (value - min) / (max - min) * (1 - minOpacity) + minOpacity);
-
-                        var bars = svg.selectAll('.bar')
-                            .data(rowData[dd.attrName]);
-
-                        bars.enter()
-                            .append('rect')
-                            .attr('class', 'bar');
-
-                        bars.exit().remove();
-
-                        diameter = diameter > 0 ? diameter : this.clientHeight * 0.4;
-                        padding = padding > 0 ? padding : this.clientHeight * 0.3;
-
-                        var begin = this.clientWidth / 2 - ((padding + diameter) * rowData[dd.attrName].length + padding) / 2 + padding;
-
-                        svg.selectAll('.bar')
-                            .attr('x', function (d, i) {
-                                return begin + i * (padding + diameter)
-                            })
-                            .attr('y', padding)
-                            .attr('width', diameter)
-                            .attr('height', diameter)
-                            .attr('fill', '#FFB300')
-                            .attr('fill-opacity', d => d);
-                    }
-                });
-        });
-    },
-    updated: function () {
-        console.log('graphtable updated!');
-    },
+        render(dataTable);
+    }
 };
 </script>
 
@@ -233,6 +280,13 @@ div#graphtable {
         div.table-title {
             flex: 1;
             line-height: 60px;
+            position: relative;
+
+            button {
+                position: absolute;
+                right: 20px;
+                top: 19px;
+            }
         }
     }
 

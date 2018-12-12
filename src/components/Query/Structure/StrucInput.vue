@@ -305,7 +305,7 @@ export default {
         var name = this.$store.state.attribute.authorsFilted.map(d=>d.author)
         var rela ={}
         this.$store.state.attribute.authorsRelation.forEach(d=>{ rela[d.author] = d.coauthors})
-        axios.post('http://127.0.0.1:5000/knnQuery', { search_nodes:nodes, search_links:links,name:name, rela:rela})
+        axios.post('http://10.76.0.170:5000/knnQuery', { search_nodes:nodes, search_links:links,name:name, rela:rela})
           .then((d) =>{
             console.log(d.data)
             this.$store.commit("getMatchResults", d.data);
